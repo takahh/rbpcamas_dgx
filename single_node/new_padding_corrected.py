@@ -154,7 +154,7 @@ class Tfconfig():
 #            for gpu in gpus:
 #                tf.config.experimental.set_memory_growth(gpu, True)
             tf.config.set_visible_devices(gpus[0:4], 'GPU')  # Using all GPUs (default behaviour)
-	# -------------
+        # -------------
         # train or test
         # -------------
         if self.training == 0:
@@ -296,10 +296,11 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
-        attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
+        # attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
+        attention_weights = tf.cast(calculate_fractions(scaled_attention_logits), tf.float32)
         # tf.print(f"attention weight after softmax {attention_weights.shape}")
         # tf.print(f"attention_weight after softmax {attention_weights[0, :3, :10]}")
-	# multiply the number of rows (necessary??)
+        # multiply the number of rows (necessary??)
         if tffig.two_d_softm_mul_row_count == 1:
             if attention_weights.shape[2] == tffig.max_pro_len:  # (5, 105, 2805)
                 if tffig.reduce_level != 20:
@@ -383,6 +384,18 @@ class Transformer(tf.keras.Model):
             return prediction
         else:
             return prediction, p_cr_weight, r_cr_weight, pweight, rweight, pout, rout
+
+
+def calculate_fractions(tensordata):
+    tf.print(f"tensordata.shape : {tensordata.shape}")
+    b = tf.reduce_sum(tensordata, axis=1)
+    tf.print(f"sum {b.shape}")
+    b = tf.reshape(b, b.shape)
+    tf.print(f"reshaped {b.shape}")
+    c = tf.divide(a, b)
+    tf.print(f"fractions {c}")
+    print(c)
+    return c
 
 
 def padding_to_zeros(input_tf, tffcfg):
