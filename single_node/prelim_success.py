@@ -373,13 +373,13 @@ class Transformer(tf.keras.Model):
             return prediction, p_cr_weight, r_cr_weight, pweight, rweight, pout, rout
 
 
-def padding_to_zeros(input_tf, tffcfg):
-    boolmask = tf.logical_not(tf.math.equal(tffcfg.reduced_ptok, tf.constant(0.0)))
-    boolmask = boolmask[:, :, :, tf.newaxis]
-    boolmask = tf.repeat(boolmask, repeats=64, axis=3)
-    zero_tf = tf.zeros(input_tf.shape)
-    output_tf = tf.where(boolmask, input_tf, zero_tf)
-    return output_tf
+# def padding_to_zeros(input_tf, tffcfg):
+#     boolmask = tf.logical_not(tf.math.equal(tffcfg.reduced_ptok, tf.constant(0.0)))
+#     boolmask = boolmask[:, :, :, tf.newaxis]
+#     boolmask = tf.repeat(boolmask, repeats=64, axis=3)
+#     zero_tf = tf.zeros(input_tf.shape)
+#     output_tf = tf.where(boolmask, input_tf, zero_tf)
+#     return output_tf
 
 
 class Embedders(tf.keras.layers.Layer):
@@ -438,7 +438,7 @@ class Embedders(tf.keras.layers.Layer):
             posi_info = tf.gather(self.pos_encoding[0, :, :], tf_cfg.red_index, axis=0)[:, :, :tf_cfg.max_pro_len, :]
             x += posi_info
             # padding to zeros
-            x = padding_to_zeros(x, tf_cfg)
+            # x = padding_to_zeros(x, tf_cfg)
         else:  # RNA
             x += self.pos_encoding[:maxlen, :]
 
@@ -539,15 +539,15 @@ class AttentionLayer(tf.keras.layers.Layer):  # basic attention calculation
         attn_output, _ = self.mha.call(q, kv, confg, one_when_rna)  # (batch_size, input_seq_len, d_model)
         attn_output = self.dropout1(attn_output, training=confg.training_boolean)
         out1 = self.layernorm1(q + attn_output)  # (batch_size, input_seq_len, d_model)
-        if out1.shape[-2] == config.max_pro_len:
-            out1 = padding_to_zeros(out1, confg)
+        # if out1.shape[-2] == config.max_pro_len:
+        #     out1 = padding_to_zeros(out1, confg)
         ffn_output = self.ffn(out1)  # (batch_size, input_seq_len, d_model)
-        if ffn_output.shape[2] == confg.max_pro_len:
-            ffn_output = padding_to_zeros(ffn_output, confg)
+        # if ffn_output.shape[2] == confg.max_pro_len:
+        #     ffn_output = padding_to_zeros(ffn_output, confg)
         ffn_output = self.dropout2(ffn_output, training=confg.training_boolean)
         out2 = self.layernorm2(out1 + ffn_output)  # (batch_size, input_seq_len, d_model)
-        if out2.shape[2] == confg.max_pro_len:
-            out2 = padding_to_zeros(out2, confg)
+        # if out2.shape[2] == confg.max_pro_len:
+        #     out2 = padding_to_zeros(out2, confg)
         return out2, _
 
 
@@ -610,11 +610,11 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         v = self.wv(kv)
         k = self.wk(kv)
         q = self.wq(q)
-        if v.shape[2] == tfcg.max_pro_len:
-            v = padding_to_zeros(v, tfcg)
-            k = padding_to_zeros(k, tfcg)
-        if q.shape[2] == tfcg.max_pro_len:
-            q = padding_to_zeros(q, tfcg)
+        # if v.shape[2] == tfcg.max_pro_len:
+        #     v = padding_to_zeros(v, tfcg)
+        #     k = padding_to_zeros(k, tfcg)
+        # if q.shape[2] == tfcg.max_pro_len:
+        #     q = padding_to_zeros(q, tfcg)
         # split
         q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
         k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
@@ -630,8 +630,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
         concat_attention = tf.reshape(scaled_attention, (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
         output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
-        if output.shape[1] == tfcg.max_pro_len:
-            output = padding_to_zeros(output, tfcg)
+        # if output.shape[1] == tfcg.max_pro_len:
+        #     output = padding_to_zeros(output, tfcg)
         return output, attention_weights
 
 
