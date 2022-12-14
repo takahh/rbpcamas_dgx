@@ -252,8 +252,9 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             # Augment (Add or Multiply)
             # ------------------------------------------
             scaled_attention_logits *= self.aug_weight_att
+            # scaled_attention_logits = self.aug_weight_att * tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
             attn_weight_before = scaled_attention_logits
-
+            
             if tffig.aug_multiply == 0:  # when add two tables
                 # # ------------------------------------------
                 # # Scale KQ
@@ -262,6 +263,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # ------------------------------------------
                 # Apply coeff to potentials
                 # ------------------------------------------
+                # stats_to_add = self.aug_weight_aug * tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
                 stats_to_add = self.aug_weight_aug * tffig.number_to_multiply_to_stats * tf.cast(table_to_augment, dtype="float32")
                 # tf.print("#######")
                 # tf.print(f"stats_to_add {stats_to_add.shape}")
@@ -273,6 +275,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # ------------------------------------------
                 scaled_attention_logits += stats_to_add
             else:  # multiply two tables element-wise
+                # table_to_augment = tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
                 table_to_augment = 10 * tf.cast(table_to_augment, dtype="float32")
                 table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
                 scaled_attention_logits = tf.keras.activations.sigmoid(scaled_attention_logits)
@@ -296,10 +299,11 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
-        # attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
-        attention_weights = tf.cast(calculate_fractions(scaled_attention_logits), tf.float32)
+        attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
+        # attention_weights = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
+        # attention_weights = tf.cast(tf.keras.activations.softmax(attention_weights, axis=[2, 3]), tf.float32)
         # tf.print(f"attention weight after softmax {attention_weights.shape}")
-        # tf.print(f"attention_weight after softmax {attention_weights[0, :3, :10]}")
+        # tf.print(f"attention_weight after softmax {attention_weights[:2, :3, :10]}")
         # multiply the number of rows (necessary??)
         if tffig.two_d_softm_mul_row_count == 1:
             if attention_weights.shape[2] == tffig.max_pro_len:  # (5, 105, 2805)
@@ -310,7 +314,8 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # mulcoeff (5, 1, 1, 1). att weights [5,2,1668,1668]
                 attention_weights *= tf.cast(mul_coeff, dtype="float32")
             elif attention_weights.shape[2] == 101:
-                attention_weights *= 101
+                mul_coeff = 101
+                attention_weights *= mul_coeff
     else:
         # tf.print(f"scaled_attention_logits {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
@@ -387,14 +392,13 @@ class Transformer(tf.keras.Model):
 
 
 def calculate_fractions(tensordata):
-    tf.print(f"tensordata.shape : {tensordata.shape}")
-    b = tf.reduce_sum(tensordata, axis=1)
-    tf.print(f"sum {b.shape}")
-    b = tf.reshape(b, b.shape)
-    tf.print(f"reshaped {b.shape}")
-    c = tf.divide(a, b)
-    tf.print(f"fractions {c}")
-    print(c)
+    # calculate sum
+    b = tf.reduce_sum(tensordata, axis=[2, 3])
+    # repeat in two dims
+    b = tf.reshape(tf.repeat(b, tensordata.shape[2], axis=1), [tensordata.shape[0], tensordata.shape[1], tensordata.shape[2]])
+    b = tf.reshape(tf.repeat(b, tensordata.shape[3], axis=2), tensordata.shape)
+    # divide 
+    c = tf.divide(tensordata, b)
     return c
 
 
