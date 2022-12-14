@@ -961,8 +961,8 @@ def opt_trfmr(tfconfig):
         else:
             combined_dataset_train = combined_dataset.take(int(train_files))
             combined_dataset_test = combined_dataset.skip(int(train_files)).take(int(test_files))
-            combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)*2).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
-            combined_dataset_test = combined_dataset_test.repeat(1).shuffle(int(test_files)*2).batch(test_batch).with_options(options)
+            combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+            combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).with_options(options)
             # combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch, drop_remainder=True).with_options(options)
             # combined_dataset_test = combined_dataset_test.repeat(1).shuffle(int(train_files)).batch(test_batch, drop_remainder=True).with_options(options)
             # if tfconfig.data_mode != "all_unknown":
