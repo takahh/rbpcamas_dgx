@@ -47,7 +47,7 @@ RNA_MAX_LENGTH = 101
 # PROTEIN_MAX_LENGTH = 2805
 # DROPOUT_RATE = 0.1
 final_target_vocab_size = 2
-ATTN_OUT = "/gs/hs0/tga-science/kimura/reduced_RBP_camas/data/output_weight/"
+ATTN_OUT = "/home/kimura.t/rbpcamas/attn_out/"
 
 seed = 0
 tf.config.run_functions_eagerly(True)
@@ -132,7 +132,7 @@ class Tfconfig():
             physical_devices = tf.config.list_physical_devices('CPU')  # 8 GPUs in my setup
             tf.config.set_visible_devices(physical_devices[0], 'CPU')  # Using all GPUs (default behaviour)
         elif self.run_on_local == 0:
-            self.basepath = "/home/kimura.t/rbpcamas/"
+            self.basepath =  "/home/kimura.t/rbpcamas/"
             gpus = tf.config.list_physical_devices('GPU')  # 8 GPUs in my setup
             tf.config.set_visible_devices(gpus[0:config.num_of_gpu], 'GPU')  # Using all GPUs (default behaviour)
         # -------------
@@ -146,26 +146,25 @@ class Tfconfig():
         # -------------
         # input path
         # -------------
-        # if "unknown" in self.keyword:
-        #     self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/"
-        # elif "increased" in self.keyword:
-        #     self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/3600_{self.data_dir_name}_{self.reduce_level}/"
-        # else:   # this is selected in reduced known
-        #     self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/1400_{self.data_dir_name}_{self.reduce_level}/"
-        # if self.data_mode == "all_unknown_broad_share":
-        #     self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized_broad_share_red_{self.reduce_level}/"
-        # elif self.data_mode == "unknown_data_to_known_task":
-        #     # /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/training_data_tokenized_broad_share_red_8/1200
-        #     self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized_broad_share_red_{self.reduce_level}/1200/"
+        self.data_directory = "data"
+        if "unknown" in self.keyword:
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/"
+        elif "increased" in self.keyword:
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/3600_{self.data_dir_name}_{self.reduce_level}/"
+        else:   # this is selected in reduced known
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/1400_{self.data_dir_name}_{self.reduce_level}/"
+        if self.data_mode == "all_unknown_broad_share":
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized_broad_share_red_{self.reduce_level}/"
+        elif self.data_mode == "unknown_data_to_known_task":
+            # /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/training_data_tokenized_broad_share_red_8/1200
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized_broad_share_red_{self.reduce_level}/1200/"
         if "mydata" in self.keyword:
             # /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_red8/
-            self.training_npz_dir = f"{self.basepath}data/mydata_red8/"
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/mydata_red8/"
         elif "mix" in self.keyword:
             # /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_red8/
             # /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/training_data_tokenized/1400_shared_8
-            self.training_npz_dir = f"{self.basepath}data/mydata_red8/:{self.basepath}{self.data_directory}/training_data_tokenized/1400_shared_8/"
-        else:
-            self.training_npz_dir = f"{self.basepath}{self.data_directory}/training_data_tokenized/1400_{self.data_dir_name}_{self.reduce_level}/"
+            self.training_npz_dir = f"{self.basepath}{self.data_directory}/mydata_red8/:{self.basepath}{self.data_directory}/training_data_tokenized/1400_shared_8/"
 
         # -------------
         # chpoint path
@@ -373,13 +372,13 @@ class Transformer(tf.keras.Model):
             return prediction, p_cr_weight, r_cr_weight, pweight, rweight, pout, rout
 
 
-# def padding_to_zeros(input_tf, tffcfg):
-#     boolmask = tf.logical_not(tf.math.equal(tffcfg.reduced_ptok, tf.constant(0.0)))
-#     boolmask = boolmask[:, :, :, tf.newaxis]
-#     boolmask = tf.repeat(boolmask, repeats=64, axis=3)
-#     zero_tf = tf.zeros(input_tf.shape)
-#     output_tf = tf.where(boolmask, input_tf, zero_tf)
-#     return output_tf
+def padding_to_zeros(input_tf, tffcfg):
+    boolmask = tf.logical_not(tf.math.equal(tffcfg.reduced_ptok, tf.constant(0.0)))
+    boolmask = boolmask[:, :, :, tf.newaxis]
+    boolmask = tf.repeat(boolmask, repeats=64, axis=3)
+    zero_tf = tf.zeros(input_tf.shape)
+    output_tf = tf.where(boolmask, input_tf, zero_tf)
+    return output_tf
 
 
 class Embedders(tf.keras.layers.Layer):
@@ -411,12 +410,7 @@ class Embedders(tf.keras.layers.Layer):
             maxlen = tf_cfg.max_rna_len
             x = self.embedding(sequence)
         elif one_when_rna == 0:  # protein embedding
-            if tf_cfg.reduce_level != 20:
-                sequence = tf_cfg.reduced_ptok
-            else:
-                sequence = tf_cfg.protok
-                print("######################")
-                print(sequence)
+            sequence = tf_cfg.reduced_ptok
             maxlen = 2805
             # ----------------------------------
             # EMBEDDING
@@ -438,7 +432,7 @@ class Embedders(tf.keras.layers.Layer):
             posi_info = tf.gather(self.pos_encoding[0, :, :], tf_cfg.red_index, axis=0)[:, :, :tf_cfg.max_pro_len, :]
             x += posi_info
             # padding to zeros
-            # x = padding_to_zeros(x, tf_cfg)
+            x = padding_to_zeros(x, tf_cfg)
         else:  # RNA
             x += self.pos_encoding[:maxlen, :]
 
@@ -539,15 +533,15 @@ class AttentionLayer(tf.keras.layers.Layer):  # basic attention calculation
         attn_output, _ = self.mha.call(q, kv, confg, one_when_rna)  # (batch_size, input_seq_len, d_model)
         attn_output = self.dropout1(attn_output, training=confg.training_boolean)
         out1 = self.layernorm1(q + attn_output)  # (batch_size, input_seq_len, d_model)
-        # if out1.shape[-2] == config.max_pro_len:
-        #     out1 = padding_to_zeros(out1, confg)
+        if out1.shape[-2] == config.max_pro_len:
+            out1 = padding_to_zeros(out1, confg)
         ffn_output = self.ffn(out1)  # (batch_size, input_seq_len, d_model)
-        # if ffn_output.shape[2] == confg.max_pro_len:
-        #     ffn_output = padding_to_zeros(ffn_output, confg)
+        if ffn_output.shape[2] == confg.max_pro_len:
+            ffn_output = padding_to_zeros(ffn_output, confg)
         ffn_output = self.dropout2(ffn_output, training=confg.training_boolean)
         out2 = self.layernorm2(out1 + ffn_output)  # (batch_size, input_seq_len, d_model)
-        # if out2.shape[2] == confg.max_pro_len:
-        #     out2 = padding_to_zeros(out2, confg)
+        if out2.shape[2] == confg.max_pro_len:
+            out2 = padding_to_zeros(out2, confg)
         return out2, _
 
 
@@ -610,11 +604,11 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         v = self.wv(kv)
         k = self.wk(kv)
         q = self.wq(q)
-        # if v.shape[2] == tfcg.max_pro_len:
-        #     v = padding_to_zeros(v, tfcg)
-        #     k = padding_to_zeros(k, tfcg)
-        # if q.shape[2] == tfcg.max_pro_len:
-        #     q = padding_to_zeros(q, tfcg)
+        if v.shape[2] == tfcg.max_pro_len:
+            v = padding_to_zeros(v, tfcg)
+            k = padding_to_zeros(k, tfcg)
+        if q.shape[2] == tfcg.max_pro_len:
+            q = padding_to_zeros(q, tfcg)
         # split
         q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
         k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
@@ -630,8 +624,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
         concat_attention = tf.reshape(scaled_attention, (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
         output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
-        # if output.shape[1] == tfcg.max_pro_len:
-        #     output = padding_to_zeros(output, tfcg)
+        if output.shape[1] == tfcg.max_pro_len:
+            output = padding_to_zeros(output, tfcg)
         return output, attention_weights
 
 
@@ -694,16 +688,28 @@ def opt_trfmr(tfconfig):
         # @tf.function(input_signature=train_step_signature)
         def train_step(self, data_combined, y=None, first_batch=None):
             datalist = [x for x in data_combined]
-            if tfconfig.reduce_level == 20:
-                tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
-                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label = \
-                    map(self.flatten_n_batch, datalist[:7])
-            else:
-                tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
-                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.red_index \
-                , tfconfig.reduced_ptok = \
-                map(self.flatten_n_batch, datalist[:9])
+
+            tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
+            tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.red_index \
+            , tfconfig.reduced_ptok = \
+            map(self.flatten_n_batch, datalist[:9])
             tfconfig.validation_in_training = 0
+
+            # tfconfig.proid = self.flatten_n_batch(datalist[0])
+            # # tfconfig.protok = self.flatten_n_batch(datalist[1]) # 1 is skipped
+            # tfconfig.rnatok = self.flatten_n_batch(datalist[1])
+            # tfconfig.statpot_hb = self.flatten_n_batch(datalist[2])
+            # tfconfig.statpot_pi = self.flatten_n_batch(datalist[3])
+            # tfconfig.self_pro_mask_list = self.flatten_n_batch(datalist[4])
+            # tfconfig.cross_padding_mask_list = self.flatten_n_batch(datalist[5])
+            # tfconfig.label = self.flatten_n_batch(datalist[6])
+            # tfconfig.red_index = self.flatten_n_batch(datalist[7])
+            # tfconfig.reduced_ptok = self.flatten_n_batch(datalist[8])
+
+            # namelist = ["proid", "protok", "rnatok", "ststhb", "statpi", "promask", "crossmask", "label"]
+            # varlist = [tfconfig.proid, tfconfig.protok, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label]
+            # for idx, item in enumerate(varlist) :
+            #     tf.print(f"{namelist[idx]}: {item[0, 0]}")
 
             if tfconfig.use_TAPE_feature == 1:
                 tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
@@ -734,23 +740,32 @@ def opt_trfmr(tfconfig):
         # @tf.function(input_signature=train_step_signature)
         def test_step(self, data_combined, y=None, first_batch=None):
             datalist = [x for x in data_combined]
-            if tfconfig.reduce_level == 20:
-                tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
-                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label = \
-                    map(self.flatten_n_batch, datalist[:7])
-            else:
-                tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
-                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.red_index \
-                        , tfconfig.reduced_ptok = \
-                            map(self.flatten_n_batch, datalist[:9])
+
+            tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
+            tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.red_index \
+                    , tfconfig.reduced_ptok = \
+                        map(self.flatten_n_batch, datalist[:9])
             tfconfig.validation_in_training = 0
             tfconfig.protok = None
 
+            # tfconfig.proid = self.flatten_n_batch(datalist[0])
+            # # tfconfig.protok = self.flatten_n_batch(datalist[1])
+            # tfconfig.protok = None
+            # tfconfig.rnatok = self.flatten_n_batch(datalist[1])
+            # tfconfig.statpot_hb = self.flatten_n_batch(datalist[2])
+            # tfconfig.statpot_pi = self.flatten_n_batch(datalist[3])
+            # tfconfig.self_pro_mask_list = self.flatten_n_batch(datalist[4])
+            # tfconfig.cross_padding_mask_list = self.flatten_n_batch(datalist[5])
+            # tfconfig.label = self.flatten_n_batch(datalist[6])
+            # tfconfig.red_index = self.flatten_n_batch(datalist[7])
+            # tfconfig.reduced_ptok = self.flatten_n_batch(datalist[8])
             tfconfig.validation_in_training = 1
             if tfconfig.use_TAPE_feature == 1:
                 tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
+            # predictions, pweight, rweight, pself, rself, proout, rnaout = self.transformer(tfconfig)
             predictions = self.transformer(tfconfig)
 
+            # predictions, pweight, rweight, pself, rself = self.transformer(tfconfig)  # prediction, pweight, rweight, p_cr_weight, r_cr_weight
             loss = loss_function(tfconfig.label[0], predictions)
             loss_avg.update_state(loss)
             auc.update_state(tfconfig.label[0], predictions)
@@ -803,29 +818,22 @@ def opt_trfmr(tfconfig):
         # proid, protok, rnatok, p_tape_arr, label, pro_mask, cross_mask, hb_pots, pi_pots, reduced_index)
         arr = np.load(filename.numpy(), allow_pickle=True)
         proid_tf = tf.convert_to_tensor(arr["proid"], dtype="int16")
+        protok_tf = None
         rnatok_tf = tf.convert_to_tensor(arr["rnatok"], dtype="float32")
         pro_mask_tf = tf.convert_to_tensor(arr["pro_mask"], dtype="float32")
         cross_mask_tf = tf.convert_to_tensor(arr["cross_mask"], dtype="float32")
         pot_arr_hb_tf = tf.convert_to_tensor(arr["hb_pots"], dtype="float32")
         pot_arr_pi_tf = tf.convert_to_tensor(arr["pi_pots"], dtype="float32")
         label_tf = tf.convert_to_tensor(arr["label"], dtype="int16")
-        if tfconfig.reduce_level != 20:
-            red_index_tf = tf.convert_to_tensor(arr["reduced_index"], dtype="int32")
-            reduced_ptoks_tf = tf.convert_to_tensor(arr["reduced_ptoks"], dtype="float32")
-            if tfconfig.use_TAPE_feature == 1:
-                p_tape_tf = tf.convert_to_tensor(arr["p_tape_arr"], dtype="float32")
-                return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf, red_index_tf,
-                        reduced_ptoks_tf, p_tape_tf)
-            else:
-                return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf, red_index_tf,
-                        reduced_ptoks_tf)
+        red_index_tf = tf.convert_to_tensor(arr["reduced_index"], dtype="int32")
+        reduced_ptoks_tf = tf.convert_to_tensor(arr["reduced_ptoks"], dtype="float32")
+        if tfconfig.use_TAPE_feature == 1:
+            p_tape_tf = tf.convert_to_tensor(arr["p_tape_arr"], dtype="float32")
+            return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf, red_index_tf,
+                    reduced_ptoks_tf, p_tape_tf)
         else:
-            protok_tf = tf.convert_to_tensor(arr["protok"], dtype="float32")
-            if tfconfig.use_TAPE_feature == 1:
-                p_tape_tf = tf.convert_to_tensor(arr["p_tape_arr"], dtype="float32")
-                return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf, p_tape_tf)
-            else:
-                return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf)
+            return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf, red_index_tf,
+                    reduced_ptoks_tf)
 
     # ------------------------------------------------
     # callbacks and dataset
@@ -863,7 +871,7 @@ def opt_trfmr(tfconfig):
     # get paths
     npz_list = None
     if tfconfig.data_mode == "mydata":
-        npz_list = tf.data.Dataset.list_files(tfconfig.training_npz_dir + "*.npz", shuffle=False)
+        npz_list = tf.data.Dataset.list_files(tfconfig.training_npz_dir + "*.npz")
         train_files = 800
         test_files = 200
         val_files = 0
@@ -916,25 +924,14 @@ def opt_trfmr(tfconfig):
                                                                                tf.int32, tf.float32]))
     else:
         if tfconfig.use_TAPE_feature == 1:
-            if tfconfig.reduce_level == 20:
-                combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
-                                                                         Tout=[tf.int16, tf.float32, tf.float32, tf.float32,
-                                                                               tf.float32, tf.float32, tf.int16, tf.float32,
-                                                                               tf.float32]))
-            else:
-                combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
+            combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
                                                                  Tout=[tf.int16, tf.float32, tf.float32, tf.float32,
                                                                        tf.float32, tf.float32, tf.int16, tf.int32,
                                                                        tf.float32, tf.float32]))
         else:
-            if tfconfig.reduce_level == 20:
-                combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
-                                                                     Tout=[tf.int16, tf.float32, tf.float32, tf.float32,
-                                                                           tf.float32, tf.float32, tf.int16, tf.float32]))
-            else:
-                # return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf,
-                #         red_index_tf, protok_reduced,
-                combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
+            # return (proid_tf, rnatok_tf, pot_arr_hb_tf, pot_arr_pi_tf, pro_mask_tf, cross_mask_tf, label_tf,
+            #         red_index_tf, protok_reduced,
+            combined_dataset = npz_list.map(lambda x: tf.py_function(func=np_load, inp=[x],
                                                                      Tout=[tf.int16, tf.float32, tf.float32, tf.float32,
                                                                            tf.float32, tf.float32, tf.int16, tf.int32,
                                                                            tf.float32]))
@@ -961,8 +958,8 @@ def opt_trfmr(tfconfig):
         else:
             combined_dataset_train = combined_dataset.take(int(train_files))
             combined_dataset_test = combined_dataset.skip(int(train_files)).take(int(test_files))
-            combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
-            combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).with_options(options)
+            combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)*2).batch(dataset_batch).with_options(options)
+            combined_dataset_test = combined_dataset_test.repeat(1).shuffle(int(test_files)*2).batch(test_batch).with_options(options)
             # combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch, drop_remainder=True).with_options(options)
             # combined_dataset_test = combined_dataset_test.repeat(1).shuffle(int(train_files)).batch(test_batch, drop_remainder=True).with_options(options)
             # if tfconfig.data_mode != "all_unknown":
@@ -988,8 +985,7 @@ def opt_trfmr(tfconfig):
         if tfconfig.usechpoint == 1:
             model.load_weights(checkpoint_path_no_date)
     if tfconfig.training == 1:
-        # model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks, validation_data=combined_dataset_test)
-        model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks)
+        model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks, validation_data=combined_dataset_test)
     elif tfconfig.training == 0:
         model.evaluate(combined_dataset_test)
 
