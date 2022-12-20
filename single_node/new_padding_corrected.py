@@ -760,8 +760,8 @@ def opt_trfmr(tfconfig):
         # @tf.function(input_signature=train_step_signature)
         def train_step(self, data_combined, y=None, first_batch=None):
             datalist = [x for x in data_combined]
-            for idx, item in enumerate(datalist):
-                tf.print(f"{idx}:{item.shape}:{item[0]}")
+            # for idx, item in enumerate(datalist):
+            #     tf.print(f"{idx}:{item.shape}:{item[0]}")
 
             if tfconfig.reduce_level == 20:
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
@@ -852,8 +852,8 @@ def opt_trfmr(tfconfig):
 
         @property
         def metrics(self):
-            # loss_avg = tf.keras.metrics.Mean(name='train_loss')
-            # auc = tf.keras.metrics.AUC()
+            loss_avg = tf.keras.metrics.Mean(name='train_loss')
+            auc = tf.keras.metrics.AUC()
             return [loss_avg, auc]
 
     def get_unknown_npzlist(fold_id):  # return tf.dataset consisting of 800 training and 200 test
@@ -924,8 +924,7 @@ def opt_trfmr(tfconfig):
             if not os.path.exists("/home/kimura.t/rbpcamas/batch_files/Protein_centric/nvlog.txt"):
                 with open("/home/kimura.t/rbpcamas/batch_files/Protein_centric/nvlog.txt", "w") as f:
                     pass
-
-            call(" nvidia-smi |grep P0 >> /home/kimura.t/rbpcamas/batch_files/Protein_centric/nvlog.txt", shell=True)
+            # call(" nvidia-smi |grep P0 >> /home/kimura.t/rbpcamas/batch_files/Protein_centric/nvlog.txt", shell=True)
             auc.reset_states()
             loss_avg.reset_states()
             endtime = time.process_time()
