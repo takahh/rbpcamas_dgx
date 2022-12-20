@@ -201,10 +201,10 @@ class Tfconfig():
 
 def print_data_features(tfdata, dataname):
     pass
-    # tf.print("--------------")
-    # tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
-    # tf.print(f"{dataname} {tfdata.shape}")
-    # tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
+    tf.print("--------------")
+    tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
+    tf.print(f"{dataname} {tfdata.shape}")
+    tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
 
 
 @tf.function
@@ -281,7 +281,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 print_data_features(table_to_augment, "table_to_augment before x10")
                 table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 2)
                 print_data_features(table_to_augment, "table_to_augment affter x10")
-                table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
+                # table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
                 print_data_features(table_to_augment, "table_to_augment affter sigmoid")
 
                 scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
