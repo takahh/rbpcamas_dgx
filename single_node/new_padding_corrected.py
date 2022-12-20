@@ -308,7 +308,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # add large negative values 7
     ########################################################
-    scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask)
+    scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
 
     ########################################################
     # apply softmax
