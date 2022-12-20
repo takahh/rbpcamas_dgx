@@ -165,12 +165,7 @@ class Tfconfig():
         # -------------
         # input path
         # -------------
-        if "new" in self.keyword:
-            self.training_npz_dir = f"{self.basepath}data/Protein_centric_TAPE/{self.file_count_max}/"
-        elif "all" in self.keyword:
-            self.training_npz_dir = f"{self.basepath}data/RNAcentric/"
-        if self.reduce_level != 20:
-            self.training_npz_dir = f"{self.basepath}data/mydata_red{self.reduce_level}/"
+        self.training_npz_dir = f"{self.basepath}data/{self.data_dir_name}/"
         self.training_npz_dir2 = f"{self.basepath}data/attn_analysis_hb/{self.pdbid}/"
         # -------------
         # chpoint path
@@ -873,7 +868,7 @@ def opt_trfmr(tfconfig):
     starttime = time.process_time()
     # optimizer = tf.keras.optimizers.Adam(learning_rate)
     optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
-                                             weight_decay=1e-5, clipvalue=1)
+                                             weight_decay=1e-5)
     current_time = datetime.datetime.now().strftime("%Y%m%d")
     checkpoint_path_no_date = f"{tfconfig.checkpoint_path}"
     checkpoint_path_with_date = f"{tfconfig.checkpoint_path}_{current_time}"
