@@ -251,14 +251,18 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             # Prepare Table to Add
             # ------------------------------------------
             table_to_augment_hb = tffig.statpot_hb
+            print_data_features(table_to_augment_hb, "table_to_augment_hb")
             table_to_augment_pi = tffig.statpot_pi  # TensorShape([5, 2805, 101])
             table_to_augment = tf.transpose(tf.stack([table_to_augment_hb, table_to_augment_pi]),
                                             perm=[1, 0, 2, 3])  # [5, 2, 2805, 101]
+            print_data_features(table_to_augment, "table_to_augment combined")
             try:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num],
                                              axis=1)  # [5, 4, 2805, 101]  THIS LINE IS WRONG!!!!
             except ValueError:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num + 1], axis=1)
+
+            print_data_features(table_to_augment, "table_to_augment repeated")
             if scaled_attention_logits.shape[-1] != table_to_augment.shape[-1]:
                 table_to_augment = tf.transpose(table_to_augment, perm=[0, 1, 3, 2])
 
@@ -281,29 +285,29 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 stats_to_add = tf.multiply(self.aug_weight_aug, tffig.number_to_multiply_to_stats)
                 stats_to_add = tf.multiply(stats_to_add, tf.cast(table_to_augment, dtype="float32"))
                 # tf.print("#######")
-                print_data_features(stats_to_add, "stats_to_add")
-                print_data_features(scaled_attention_logits, "scaled_attention_logits before addition")
+                # print_data_features(stats_to_add, "stats_to_add")
+                # print_data_features(scaled_attention_logits, "scaled_attention_logits before addition")
                 # ------------------------------------------
                 # Add
                 # ------------------------------------------
                 scaled_attention_logits += stats_to_add
-                print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
+                # print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
             else:  # multiply two tables element-wise
-                print_data_features(table_to_augment, "table_to_augment before x10")
+                # print_data_features(table_to_augment, "table_to_augment before x10")
                 table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 20)
-                print_data_features(table_to_augment, "table_to_augment affter x10")
+                # print_data_features(table_to_augment, "table_to_augment affter x10")
                 # table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
                 # print_data_features(table_to_augment, "table_to_augment affter sigmoid")
 
                 # scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
-                print_data_features(scaled_attention_logits, "scaled_attention_logits before sigmoid")
+                # print_data_features(scaled_attention_logits, "scaled_attention_logits before sigmoid")
                 # add large negative according to the mask
                 scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
                 scaled_attention_logits = tf.keras.activations.sigmoid(scaled_attention_logits)
-                print_data_features(scaled_attention_logits, "scaled_attention_logits after sigmoid")
+                # print_data_features(scaled_attention_logits, "scaled_attention_logits after sigmoid")
                 scaled_attention_logits = \
                     tf.math.multiply(tf.cast(table_to_augment, dtype="float32"), scaled_attention_logits)
-                print_data_features(scaled_attention_logits, "scaled_attention_logits after augmentation(multiply)")
+                # print_data_features(scaled_attention_logits, "scaled_attention_logits after augmentation(multiply)")
 
     ########################################################
     # add large negative values 7
