@@ -210,9 +210,9 @@ def print_data_features(tfdata, dataname):
 @tf.function
 def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
 
-    def add_large_negatives(tf_data, mask_data):
-        if one_on_rna != 1:  # except RNA
-            if one_on_rna == 2:  # when cross, do transpose if needed
+    def add_large_negatives(tf_data, mask_data, ifrna):
+        if ifrna != 1:  # except RNA
+            if ifrna == 2:  # when cross, do transpose if needed
                 if tf_data.shape[-1] != mask_data.shape[-1]:
                     mask = tf.transpose(mask_data, perm=[0, 2, 1])
             mask_data = tf.repeat(mask_data[:, tf.newaxis, :, :], repeats=tffig.num_heads, axis=1)
@@ -298,7 +298,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
                 print_data_features(scaled_attention_logits, "scaled_attention_logits before sigmoid")
                 # add large negative according to the mask
-                scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask)
+                scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
                 scaled_attention_logits = tf.keras.activations.sigmoid(scaled_attention_logits)
                 print_data_features(scaled_attention_logits, "scaled_attention_logits after sigmoid")
                 scaled_attention_logits = \
