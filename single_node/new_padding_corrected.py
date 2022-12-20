@@ -201,10 +201,10 @@ class Tfconfig():
 
 def print_data_features(tfdata, dataname):
     pass
-    # tf.print("--------------")
-    # tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
-    # tf.print(f"{dataname} {tfdata.shape}")
-    # tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
+    tf.print("--------------")
+    tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
+    tf.print(f"{dataname} {tfdata.shape}")
+    tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
 
 
 @tf.function
