@@ -203,7 +203,7 @@ def print_data_features(tfdata, dataname):
     tf.print("--------------")
     tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}")
     tf.print(f"{dataname} {tfdata.shape}")
-    tf.print(f"{dataname} {tfdata.numpy()[0, :3, :10]}")
+    tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
 
 
 @tf.function
@@ -253,7 +253,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             # ------------------------------------------
             # Augment (Add or Multiply)
             # ------------------------------------------
-            scaled_attention_logits *= self.aug_weight_att
+            scaled_attention_logits = tf.multiply(self.aug_weight_att, scaled_attention_logits)
             # scaled_attention_logits = self.aug_weight_att * tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
             attn_weight_before = scaled_attention_logits
             
@@ -266,7 +266,8 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # Apply coeff to potentials
                 # ------------------------------------------
                 # stats_to_add = self.aug_weight_aug * tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
-                stats_to_add = self.aug_weight_aug * tffig.number_to_multiply_to_stats * tf.cast(table_to_augment, dtype="float32")
+                stats_to_add = tf.multiply(self.aug_weight_aug, tffig.number_to_multiply_to_stats)
+                stats_to_add = tf.multiply(stats_to_add, tf.cast(table_to_augment, dtype="float32"))
                 # tf.print("#######")
                 print_data_features(stats_to_add, "stats_to_add")
                 print_data_features(scaled_attention_logits, "scaled_attention_logits before addition")
@@ -277,7 +278,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
             else:  # multiply two tables element-wise
                 print_data_features(table_to_augment, "table_to_augment before x10")
-                table_to_augment = 10 * tf.cast(table_to_augment, dtype="float32")
+                table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 10)
                 table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
                 print_data_features(table_to_augment, "table_to_augment affter x10")
 
@@ -297,7 +298,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 mask = tf.transpose(mask, perm=[0, 2, 1])
         mask = tf.repeat(mask[:, tf.newaxis, :, :], repeats=tffig.num_heads, axis=1)
         # tf.print(f"mask {mask[0, :3, :10]}")
-        scaled_attention_logits += (mask * -1e9)
+        scaled_attention_logits += tf.multiply(mask, -1e9)
         # tf.print(f"scaled_attention_logits after added large nega {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
 
     ########################################################
@@ -318,10 +319,10 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 else:
                     mul_coeff = tf.math.count_nonzero(tffig.protok, 2)[0][:, tf.newaxis, tf.newaxis, tf.newaxis]
                 # mulcoeff (5, 1, 1, 1). att weights [5,2,1668,1668]
-                attention_weights *= tf.cast(mul_coeff, dtype="float32")
+                attention_weights = tf.multiply(attention_weights, tf.cast(mul_coeff, dtype="float32"))
             elif attention_weights.shape[2] == 101:
                 mul_coeff = 101
-                attention_weights *= mul_coeff
+                attention_weights = tf.multiply(attention_weights, mul_coeff)
     else:
         # tf.print(f"scaled_attention_logits {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
@@ -463,7 +464,7 @@ class Embedders(tf.keras.layers.Layer):
             else:
                 x = self.embedding(sequence)   # move this after posi_enc  EMBEDDING
                 x = x[0]
-        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))  # x=(1, 662, 64)
+        x = tf.multiply(x, tf.math.sqrt(tf.cast(self.d_model, tf.float32)))  # x=(1, 662, 64)
         # ----------------------------------
         # ADD POSITIONAL ENCODiNG
         # ----------------------------------
@@ -484,7 +485,7 @@ class Embedders(tf.keras.layers.Layer):
         # dropout
         x = self.dropout(x, training=tf_cfg.training_boolean)
         x = tf.cast(x, tf.float32)
-        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+        x = tf.multiply(x, tf.math.sqrt(tf.cast(self.d_model, tf.float32)))
         x /= tf.cast(self.d_model, tf.float32)
 
         return x
