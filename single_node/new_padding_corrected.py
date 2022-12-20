@@ -292,7 +292,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # ------------------------------------------
                 # stats_to_add = self.aug_weight_aug * tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
                 stats_to_add = tf.multiply(self.aug_weight_aug, tffig.number_to_multiply_to_stats)
-                print_data_features(stats_to_add, "table_to_augment x  tffig.number_to_multiply_to_stats")
+                # print_data_features(stats_to_add, "table_to_augment x  tffig.number_to_multiply_to_stats")
                 stats_to_add = tf.multiply(stats_to_add, tf.cast(table_to_augment, dtype="float32"))
                 print_data_features(stats_to_add, "table_to_augment x table_to_augment x  tffig.number_to_multiply_to_stats")
                 # tf.print("#######")
