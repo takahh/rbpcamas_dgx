@@ -204,8 +204,10 @@ def print_data_features(tfdata, dataname):
     tf.print(f"------tfdata.shape {tfdata.shape}--------")
     if len(tfdata.shape) == 4:
         tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
-    else:
+    elif len(tfdata.shape) == 3:
         tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2])}, min : {tf.reduce_min(tfdata, [0, 1, 2])}")
+    else:
+        tf.print(f"add line for shape {tfdata.shape} !!!!!!!!!!!!!! #########################")
     tf.print(f"{dataname} {tfdata.shape}")
 
     if len(tfdata.shape) == 4:
