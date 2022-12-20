@@ -218,8 +218,8 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             mask_data = tf.repeat(mask_data[:, tf.newaxis, :, :], repeats=tffig.num_heads, axis=1)
             # tf.print(f"mask {mask[0, :3, :10]}")
             tf_data += tf.multiply(mask_data, -1e9)
-            return tf_data
-            # tf.print(f"scaled_attention_logits after added large nega {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
+        return tf_data
+        # tf.print(f"scaled_attention_logits after added large nega {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
 
     ########################################################
     # Calculate Q x K
