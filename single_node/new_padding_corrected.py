@@ -209,9 +209,9 @@ def print_data_features(tfdata, dataname):
     tf.print(f"{dataname} {tfdata.shape}")
 
     if len(tfdata.shape) == 4:
-        tf.print(f"{dataname} {tfdata.numpy()[0, 0, :, :10]}")
+        tf.print(f"{dataname} {tfdata.numpy()[0, 0, :, :]}")
     else:
-        tf.print(f"{dataname} {tfdata.numpy()[0, :, :10]}")
+        tf.print(f"{dataname} {tfdata.numpy()[0, :, :]}")
 
 
 @tf.function
