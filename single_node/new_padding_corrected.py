@@ -303,7 +303,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # ------------------------------------------
                 print_data_features(scaled_attention_logits, "scaled_attention_logits before augmentation")
                 scaled_attention_logits += stats_to_add
-                print_data_features(scaled_attention_logits, "augmented weights")
+                print_data_features(scaled_attention_logits, "augmented weights before adding large nega")
                 # print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
             else:  # multiply two tables element-wise
                 # print_data_features(table_to_augment, "table_to_augment before x10")
@@ -326,6 +326,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     # add large negative values 7
     ########################################################
     scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
+    print_data_features(scaled_attention_logits, "augmented weights after added large nega, before scaling")
 
     ########################################################
     # apply softmax
