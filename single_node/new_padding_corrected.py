@@ -310,11 +310,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
-        # attention_weights = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
-        # attention_weights = tf.cast(tf.keras.activations.softmax(attention_weights, axis=[2, 3]), tf.float32)
-        # tf.print(f"attention weight after softmax {attention_weights.shape}")
-        # tf.print(f"attention_weight after softmax {attention_weights[:2, :3, :10]}")
-        # multiply the number of rows (necessary??)
+        print_data_features(attention_weights, "attention after softmax")
         if tffig.two_d_softm_mul_row_count == 1:
             if attention_weights.shape[2] == tffig.max_pro_len:  # (5, 105, 2805)
                 if tffig.reduce_level != 20:
@@ -326,6 +322,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             elif attention_weights.shape[2] == 101:
                 mul_coeff = 101
                 attention_weights = tf.multiply(attention_weights, mul_coeff)
+        print_data_features(attention_weights, "attention after softmax after mul coeff row")
     else:
         # tf.print(f"scaled_attention_logits {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
