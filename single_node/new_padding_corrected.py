@@ -214,7 +214,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
         if ifrna != 1:  # except RNA
             if ifrna == 2:  # when cross, do transpose if needed
                 if tf_data.shape[-1] != mask_data.shape[-1]:
-                    mask = tf.transpose(mask_data, perm=[0, 2, 1])
+                    mask_data = tf.transpose(mask_data, perm=[0, 2, 1])
             mask_data = tf.repeat(mask_data[:, tf.newaxis, :, :], repeats=tffig.num_heads, axis=1)
             # tf.print(f"mask {mask[0, :3, :10]}")
             tf_data += tf.multiply(mask_data, -1e9)
