@@ -332,6 +332,8 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
+        scaled_attention_logits = tf.divide(scaled_attention_logits, tf.math.sqrt(dk))
+        print_data_features(scaled_attention_logits, "scaled_attention_logits after scaling")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
         print_data_features(attention_weights, "attention after softmax")
         if tffig.two_d_softm_mul_row_count == 1:
