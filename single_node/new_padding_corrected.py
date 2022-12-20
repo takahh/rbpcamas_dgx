@@ -258,18 +258,18 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             # Prepare Table to Add
             # ------------------------------------------
             table_to_augment_hb = tffig.statpot_hb
-            print_data_features(table_to_augment_hb, "table_to_augment_hb")
+            # print_data_features(table_to_augment_hb, "table_to_augment_hb")
             table_to_augment_pi = tffig.statpot_pi  # TensorShape([5, 2805, 101])
             table_to_augment = tf.transpose(tf.stack([table_to_augment_hb, table_to_augment_pi]),
                                             perm=[1, 0, 2, 3])  # [5, 2, 2805, 101]
-            print_data_features(table_to_augment, "table_to_augment combined")
+            # print_data_features(table_to_augment, "table_to_augment combined")
             try:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num],
                                              axis=1)  # [5, 4, 2805, 101]  THIS LINE IS WRONG!!!!
             except ValueError:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num + 1], axis=1)
 
-            print_data_features(table_to_augment, "table_to_augment repeated")
+            # print_data_features(table_to_augment, "table_to_augment repeated")
             if scaled_attention_logits.shape[-1] != table_to_augment.shape[-1]:
                 table_to_augment = tf.transpose(table_to_augment, perm=[0, 1, 3, 2])
 
@@ -290,14 +290,18 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 # ------------------------------------------
                 # stats_to_add = self.aug_weight_aug * tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
                 stats_to_add = tf.multiply(self.aug_weight_aug, tffig.number_to_multiply_to_stats)
+                print_data_features(stats_to_add, "table_to_augment x  tffig.number_to_multiply_to_stats")
                 stats_to_add = tf.multiply(stats_to_add, tf.cast(table_to_augment, dtype="float32"))
+                print_data_features(stats_to_add, "table_to_augment x table_to_augment x  tffig.number_to_multiply_to_stats")
                 # tf.print("#######")
                 # print_data_features(stats_to_add, "stats_to_add")
                 # print_data_features(scaled_attention_logits, "scaled_attention_logits before addition")
                 # ------------------------------------------
                 # Add
                 # ------------------------------------------
+                print_data_features(scaled_attention_logits, "scaled_attention_logits before augmentation")
                 scaled_attention_logits += stats_to_add
+                print_data_features(scaled_attention_logits, "augmented weights")
                 # print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
             else:  # multiply two tables element-wise
                 # print_data_features(table_to_augment, "table_to_augment before x10")
@@ -327,7 +331,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=[2, 3]), tf.float32)
-        print_data_features(attention_weights, "attention after softmax")
+        # print_data_features(attention_weights, "attention after softmax")
         if tffig.two_d_softm_mul_row_count == 1:
             if attention_weights.shape[2] == tffig.max_pro_len:  # (5, 105, 2805)
                 if tffig.reduce_level != 20:
@@ -339,7 +343,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             elif attention_weights.shape[2] == 101:
                 mul_coeff = 101
                 attention_weights = tf.multiply(attention_weights, mul_coeff)
-        print_data_features(attention_weights, "attention after softmax after mul coeff row")
+        # print_data_features(attention_weights, "attention after softmax after mul coeff row")
     else:
         # tf.print(f"scaled_attention_logits {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
@@ -768,7 +772,7 @@ def opt_trfmr(tfconfig):
                 if tfconfig.use_TAPE_feature == 1:
                     tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
             tfconfig.validation_in_training = 0
-            print_data_features(tfconfig.statpot_hb, "tfconfig.statpot_hb after flatten batch")
+            # print_data_features(tfconfig.statpot_hb, "tfconfig.statpot_hb after flatten batch")
 
             with tf.GradientTape() as tape:
                 predictions = self.transformer(tfconfig)  # prediction, pweight, rweight, p_cr_weight, r_cr_weight
