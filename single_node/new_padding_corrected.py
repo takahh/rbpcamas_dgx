@@ -279,12 +279,12 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
             else:  # multiply two tables element-wise
                 print_data_features(table_to_augment, "table_to_augment before x10")
-                table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 2)
+                table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 20)
                 print_data_features(table_to_augment, "table_to_augment affter x10")
                 # table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
-                print_data_features(table_to_augment, "table_to_augment affter sigmoid")
+                # print_data_features(table_to_augment, "table_to_augment affter sigmoid")
 
-                scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
+                # scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
                 print_data_features(scaled_attention_logits, "scaled_attention_logits before sigmoid")
                 scaled_attention_logits = tf.keras.activations.sigmoid(scaled_attention_logits)
                 print_data_features(scaled_attention_logits, "scaled_attention_logits after sigmoid")
