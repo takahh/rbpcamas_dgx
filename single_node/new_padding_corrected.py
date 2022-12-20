@@ -201,13 +201,17 @@ class Tfconfig():
 
 def print_data_features(tfdata, dataname):
     pass
-    tf.print("--------------")
+    tf.print(f"------tfdata.shape {tfdata.shape}--------")
     if len(tfdata.shape) == 4:
         tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2, 3])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2, 3])}, min : {tf.reduce_min(tfdata, [0, 1, 2, 3])}")
     else:
         tf.print(f"{dataname}, max : {tf.reduce_max(tfdata, [0, 1, 2])}, mean : {tf.reduce_mean(tfdata, [0, 1, 2])}, min : {tf.reduce_min(tfdata, [0, 1, 2])}")
     tf.print(f"{dataname} {tfdata.shape}")
-    tf.print(f"{dataname} {tfdata.numpy()[0, :8, :10]}")
+
+    if len(tfdata.shape) == 4:
+        tf.print(f"{dataname} {tfdata.numpy()[0, 0, :, :10]}")
+    else:
+        tf.print(f"{dataname} {tfdata.numpy()[0, :, :10]}")
 
 
 @tf.function
@@ -747,6 +751,9 @@ def opt_trfmr(tfconfig):
         # @tf.function(input_signature=train_step_signature)
         def train_step(self, data_combined, y=None, first_batch=None):
             datalist = [x for x in data_combined]
+            for idx, item in enumerate(datalist):
+                tf.print(f"{idx}:{item.shape}:{item[0]}")
+
             if tfconfig.reduce_level == 20:
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
                 tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.protok  = \
@@ -761,6 +768,7 @@ def opt_trfmr(tfconfig):
                 if tfconfig.use_TAPE_feature == 1:
                     tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
             tfconfig.validation_in_training = 0
+            print_data_features(tfconfig.statpot_hb, "tfconfig.statpot_hb after flatten batch")
 
             with tf.GradientTape() as tape:
                 predictions = self.transformer(tfconfig)  # prediction, pweight, rweight, p_cr_weight, r_cr_weight
@@ -917,13 +925,13 @@ def opt_trfmr(tfconfig):
     cp_callback_no_date = tf.keras.callbacks.ModelCheckpoint(checkpoint_path_no_date,
                                                      monitor="eval_loss",
                                                      mode="min",
-						     save_freq=200,
+                                                     save_freq=200,
                                                      save_weights_only=True,
                                                      verbose=1)
     cp_callback_with_date = tf.keras.callbacks.ModelCheckpoint(checkpoint_path_with_date,
                                                      monitor="eval_loss",
                                                      mode="min",
-						     save_freq=200,
+                                                     save_freq=200,
                                                      save_weights_only=True,
                                                      verbose=1)
 
