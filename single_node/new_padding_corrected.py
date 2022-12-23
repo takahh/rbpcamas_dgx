@@ -14,7 +14,7 @@ import numpy as np
 import tensorflow as tf
 import os, gc
 import datetime
-import tensorflow_addons as tfa
+# import tensorflow_addons as tfa
 from subprocess import call
 #########################
 # Horovod, GPU Setup
@@ -908,9 +908,9 @@ def opt_trfmr(tfconfig):
     # callbacks and dataset
     # ------------------------------------------------
     starttime = time.process_time()
-    # optimizer = tf.keras.optimizers.Adam(learning_rate)
-    optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
-                                             weight_decay=1e-5, clipvalue=1)
+    optimizer = tf.keras.optimizers.Adam(learning_rate)
+    #optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
+    #                                        weight_decay=1e-5, clipvalue=1)
     current_time = datetime.datetime.now().strftime("%Y%m%d")
     checkpoint_path_no_date = f"{tfconfig.checkpoint_path}"
     checkpoint_path_with_date = f"{tfconfig.checkpoint_path}_{current_time}"
