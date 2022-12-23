@@ -852,8 +852,8 @@ def opt_trfmr(tfconfig):
 
         @property
         def metrics(self):
-            loss_avg = tf.keras.metrics.Mean(name='train_loss')
-            auc = tf.keras.metrics.AUC()
+            # loss_avg = tf.keras.metrics.Mean(name='train_loss')
+            # auc = tf.keras.metrics.AUC()
             return [loss_avg, auc]
 
     def get_unknown_npzlist(fold_id):  # return tf.dataset consisting of 800 training and 200 test
@@ -879,7 +879,6 @@ def opt_trfmr(tfconfig):
         # proid, protok, rnatok, p_tape_arr, label, pro_mask, cross_mask, hb_pots, pi_pots, reduced_index)
         arr = np.load(filename.numpy(), allow_pickle=True)
         proid_tf = tf.convert_to_tensor(arr["proid"], dtype="int16")
-        protok_tf = None
         rnatok_tf = tf.convert_to_tensor(arr["rnatok"], dtype="float32")
         pro_mask_tf = tf.convert_to_tensor(arr["pro_mask"], dtype="float32")
         cross_mask_tf = tf.convert_to_tensor(arr["cross_mask"], dtype="float32")
@@ -910,7 +909,7 @@ def opt_trfmr(tfconfig):
     starttime = time.process_time()
     # optimizer = tf.keras.optimizers.Adam(learning_rate)
     optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
-                                             weight_decay=1e-5)
+                                             weight_decay=1e-5, clipvalue=1)
     current_time = datetime.datetime.now().strftime("%Y%m%d")
     checkpoint_path_no_date = f"{tfconfig.checkpoint_path}"
     checkpoint_path_with_date = f"{tfconfig.checkpoint_path}_{current_time}"
@@ -997,7 +996,7 @@ def opt_trfmr(tfconfig):
     elif tfconfig.training == 0:
         callbacks = [CustomCallback()]
 
-#    strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.ReductionToOneDevice())
+    strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.ReductionToOneDevice())
     with strategy.scope():
         auc = tf.keras.metrics.AUC()
         loss_avg = tf.keras.metrics.Mean(name='train_loss')
