@@ -68,9 +68,10 @@ final_target_vocab_size = 2
 ATTN_OUT = "/gs/hs0/tga-science/kimura/reduced_RBP_camas/data/output_weight/"
 
 seed = 0
-# tf.config.run_functions_eagerly(True)
-strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.ReductionToOneDevice())
-
+tf.config.run_functions_eagerly(True)
+tf.random.set_seed(seed)
+operation_lebel_seed = 0
+initializer = tf.keras.initializers.GlorotUniform(seed=operation_lebel_seed)
 
 class Tfconfig():
     def __init__(self):
