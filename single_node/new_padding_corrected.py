@@ -181,6 +181,7 @@ class Tfconfig():
         # self.data_for_auc = self.basepath + "/data/for_comparison/CrossRPBmer/"
         promaxdict = {20: 2805, 13: 1609, 8: 986, 4: 609}
         self.protein_reduced_max_length = promaxdict[self.reduce_level]
+        tf.print(vars(self))
         return self
 
     def add_rawdata(self, pred, label):
