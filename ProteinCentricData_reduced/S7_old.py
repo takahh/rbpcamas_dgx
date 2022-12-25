@@ -79,7 +79,7 @@ def get_seq_dict(path, start, maxfilenum):
             continue
         # arr = np.load(f"{path}{group}/{i}.npy")
         seq_dict[i] = arr
-    # print("seq dict done")
+    print("seq dict done")
     return seq_dict
 
 
@@ -150,19 +150,15 @@ def main(mode, type, maxfilenum, seq_file, startnum=0, group=None):  # mode : kn
 def makeall():
     mode = "known"  # known protein patten
     for type in ["HB", "PI"]:
-        maxfile_num = 1000
+        maxfile_num = 1725
         start_num = 0
         seq_file = f"{PATH2}"
         main(mode, type, maxfile_num, seq_file, start_num)
-
-
-def runs7():
-    os.environ['TMPDIR'] = "/Users/mac/Downloads/tmp"
-    makeall()
 
 
 # -------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------
 if __name__ == '__main__':
-    runs7()
+    os.environ['TMPDIR'] = "/Users/mac/Downloads/tmp"
+    makeall()

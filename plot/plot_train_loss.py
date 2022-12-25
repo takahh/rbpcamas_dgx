@@ -3,11 +3,8 @@
 def main():
     path2 = "/Users/mac/Desktop/t3_mnt/transformer_tape_dnabert/batchfiles/cross_attention/"
 
-    tape_and_dna_aug = f"{path2}cr_8_2dsm.e10260134"
-    tape_and_dna_no_aug = f"{path2}cr_8_1dsm_3-2.e10260151"
-    no_tape_no_dnabert_aug = f"{path2}cr_8_1dsm.e10260147"
-    no_tape_no_dnabert_no_aug = f"{path2}cr_8_1dsm.e10260147"
-    path_list = [tape_and_dna_aug, tape_and_dna_no_aug, no_tape_no_dnabert_aug, no_tape_no_dnabert_no_aug]
+    t1223 = f"/Users/mac/1223.log"
+    path_list = [t1223]
     import matplotlib.pyplot as plt
     import numpy as np
     for index, inp in enumerate(path_list):

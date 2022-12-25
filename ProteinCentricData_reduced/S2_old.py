@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------
-# this code counts for a specific protein shared by other proteins
+# this code counts shared signals per chromoN and Protein
 # -------------------------------------------------------------------
 
 # -------------------------------------------------------------------
@@ -10,17 +10,15 @@ import pandas as pd
 # -------------------------------------------------------------------
 # constant
 # -------------------------------------------------------------------
-
-# output data : chr19-944334-944429,117,"['WDR43', 'DDX6', ... 'EWSR1']"
+basepath = "/Users/mac/Documents/RBP_CAMAS/data/newdata/overlaps/"
+opath = "/Users/mac/Documents/RBP_CAMAS/data/newdata/counts/"
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
 
 
-def runs2():
-    basepath = "/Users/mac/Documents/RBP_CAMAS/data/newdata/overlaps/"
-    opath = "/Users/mac/Documents/RBP_CAMAS/data/newdata/counts/"
-    path = f"{basepath}chr1/"  # binding sites of about 101 nt
+def main():
+    path = f"{basepath}chr1/"
     for proteins in os.listdir(path):
         if ".tsv" in proteins or ".txt" in proteins or ".DS" in proteins or ".bed" in proteins:
             continue
@@ -32,24 +30,20 @@ def runs2():
                 if ".DS" in files:
                     continue
                 with open(f"{path1}{files}") as f:
+                    print(f"checking {files}...")
                     for lines in f.readlines():
                         ele = lines.split()
-                        # if no overlap, ignore
-                        if len(ele[13]) < 3:
+                        if len(ele[13]) == 1:
                             continue
-                        # 0/10    1/11       2/12       3/13           4    5    6          7        8   9   20
-                        # chr22  19480012  19480110  AATF_K562_rep01   200  +   1.797486   3.52936  -1  -1 \
-                        # chr22  19480080  19480119  DDX21_K562_rep02  200  +   0.546817   0.28248　-1  -1   30
+                        # chr22   19480012        19480110        AATF_K562_rep01 200     +       1.79748642736451
+                        # 3.52936903631509        -1      -1      chr22   19480080        19480119
+                        # DDX21_K562_rep02        200     +       0.546817334292526       0.282489350110395
+                        # -1      -1      30
                         chromo_id = ele[0].split("_")[0]
-                        # skip if the overlap partner (f=0.7) is longer than 80 nt
-                        # if int(ele[20]) > 80:
-                        #     continue
-                        # if int(ele[2]) - int(ele[1]) + 1 > 101:
-                        #     print(lines)
                         range_str = f"{chromo_id}-{ele[1]}-{ele[2]}"
                         protein_name = ele[13].split("_")[0]
-                        # if "_2_" in protein_name:
-                        #     print(f"range {range_str}, protein {protein_name}")
+                        if "_2_" in protein_name:
+                            print(f"range {range_str}, protein {protein_name}")
                         if range_str in range_dict.keys():
                             if protein_name in range_dict[range_str]:
                                 pass
@@ -70,4 +64,4 @@ def runs2():
 # main
 # -------------------------------------------------------------------
 if __name__ == '__main__':
-    runs2()
+    main()

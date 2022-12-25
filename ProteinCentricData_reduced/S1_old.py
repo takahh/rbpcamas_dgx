@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------
-# this code reads bed files and select binding sites of about 101 nt
+# this code reads bed files and select binding loci
 # -------------------------------------------------------------------
 
 # -------------------------------------------------------------------
@@ -18,17 +18,14 @@ base_file_path = f"{path}newdata/base_bed_files/"  # only around 101
 overlap_file_path = f"{path}newdata/overlaps/"  # output of intersectBed
 done_proteins_list = []
 
-MIN = 95
-MAX = 102
-
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
 
 
 def check_lenegth(startnum, endnum):
-    fraglength = float(endnum) - float(startnum) + 1
-    if MIN < fraglength < MAX:
+    fraglength = float(endnum) - float(startnum)
+    if 97 < fraglength < 102:
         return True
     else:
         return False
@@ -55,11 +52,11 @@ def find_overlaps(chromo):
         outputpath = f"{overlap_file_path}/{chromo}/{protein_name}/"
         makedir_if_not_exist(f"{overlap_file_path}/{chromo}/")
         makedir_if_not_exist(f"{overlap_file_path}/{chromo}/{protein_name}/")
-        # print(inputfile)
+        print(protein_name)
         for targetfile in os.listdir(source_path):  # per one target file
             if ".gz" in targetfile:
                 continue
-            # print(f"search for overlaps between {protein_name} and {targetfile}..")
+            print(f"search for overlaps between {protein_name} and {targetfile}..")
             if protein_name not in done_proteins_list:
                 done_proteins_list.append(protein_name)
                 command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.3 > {outputpath}{targetfile}"
@@ -70,7 +67,7 @@ def find_overlaps(chromo):
 
 def make_base_files(targetchr):
     if not os.path.exists(f"{base_file_path}{targetchr}/"):
-        # print("###################3")
+        print("###################3")
         os.mkdir(f"{base_file_path}{targetchr}/")
     for filenames in os.listdir(source_path):  # per 1 bed file, almost per protein
         if ".gz" in filenames:
@@ -98,17 +95,15 @@ def make_base_files(targetchr):
                         fo.writelines(lines)
 
 
-def runs1():
-    for i in range(1, 2):
-        # print(f"------------ CHROMOSOME {i}")
-        make_base_files(f"chr{i}")
-    for i in range(1, 2):
-        # print(f"------------ CHROMOSOME {i}")
-        find_overlaps(f"chr{i}")
-
-
 # -------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------
 if __name__ == '__main__':
-    runs1()
+    for i in range(1, 2):
+        print(f"------------ CHROMOSOME {i}")
+        make_base_files(f"chr{i}")
+    for i in range(1, 2):
+        print(f"------------ CHROMOSOME {i}")
+        find_overlaps(f"chr{i}")
+
+

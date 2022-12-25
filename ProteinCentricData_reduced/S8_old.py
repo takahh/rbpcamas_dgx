@@ -3,15 +3,17 @@
 # input : sequence
 # output: array of tokens
 # -------------------------------------------------------------------
-#
+
 # -------------------------------------------------------------------
 # import
 # -------------------------------------------------------------------
 import numpy as np
 import os
-from subprocess import call
+from zipfile import BadZipFile
+# from multiprocessing.pool import ThreadPool as Pool
 from multiprocessing import Pool
-from S1_find_hotspots import makedir_if_not_exist
+import multiprocessing as multi
+import pickle
 
 # -------------------------------------------------------------------
 # constant
@@ -34,6 +36,9 @@ path = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/attn_arrays_hb/all_8/"
 hbpot_path = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/attn_arrays_hb/all_8/"
 pipot_path = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/attn_arrays_pi/all_8/"
 
+if not os.path.exists(output):
+    os.mkdir(output)
+
 # protein_cv_list = [['PPIL4', 'XRN2', 'PRPF4', 'SF3B1', 'NPM1', 'NIP7', 'RBM22', 'SRSF1', 'RPS5', 'EFTUD2', 'STAU2', 'KHDRBS1', 'DKC1', 'FKBP4', 'PUS1', 'YBX3', 'YWHAG', 'GTF2F1', 'KHSRP', 'DROSHA', 'LARP7', 'RPS11', 'HNRNPUL1', 'TRA2A', 'HNRNPC', 'UCHL5', 'LSM11', 'AATF', 'NOLC1', 'HNRNPK', 'ILF3'], ['NIPBL', 'RBFOX2', 'LIN28B', 'FXR1', 'TIA1', 'ZRANB2', 'APOBEC3C', 'IGF2BP1', 'BUD13', 'DHX30', 'GPKOW', 'NOL12', 'PABPN1', 'PCBP1', 'ZC3H11A', 'HLTF', 'SDAD1', 'RBM15', 'RBM27', 'RPS3', 'SRSF9', 'METAP2', 'CSTF2', 'U2AF2', 'NSUN2', 'AARS', 'EIF3D', 'TNRC6A', 'EIF3H', 'RBM5', 'DDX24'], ['HNRNPU', 'WRN', 'PPIG', 'SLTM', 'SERBP1', 'DGCR8', 'SUB1', 'EIF3G', 'EWSR1', 'SMNDC1', 'SAFB', 'TBRG4', 'DDX59', 'POLR2G', 'IGF2BP3', 'MTPAP', 'UTP3', 'BCLAF1', 'DDX3X', 'PTBP1', 'HNRNPA1', 'CPSF6', 'SAFB2', 'TROVE2', 'SUPV3L1', 'DDX21', 'DDX6', 'SUGP2', 'DDX42', 'XPO5', 'CSTF2T'], ['FUS', 'UTP18', 'SBDS', 'TAF15', 'NCBP2', 'CPEB4', 'WDR3', 'U2AF1', 'SF3B4', 'SF3A3', 'FTO', 'GRSF1', 'SLBP', 'HNRNPL', 'NKRF', 'EXOSC5', 'DDX55', 'TARDBP', 'ZC3H8', 'GRWD1', 'PUM1', 'EIF4G2', 'FMR1', 'SSB', 'XRCC6', 'G3BP1', 'AKAP8L', 'BCCIP', 'IGF2BP2', 'LARP4', 'FXR2'], ['PUM2', 'NONO', 'FASTKD2', 'PRPF8', 'PHF6', 'PABPC4', 'FAM120A', 'SFPQ', 'CDC40', 'HNRNPM', 'FUBP3', 'TIAL1', 'SRSF7', 'ZNF622', 'QKI', 'DDX52', 'GNL3', 'AGGF1', 'AKAP1', 'SND1', 'ZNF800', 'PCBP2', 'UPF1', 'MATR3', 'AUH', 'AQR', 'DDX51', 'ABCF1', 'GEMIN5', 'WDR43']]
 PCODES_dict = {
         20: ["A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V"],
@@ -55,7 +60,7 @@ pmax = 2805
 if moder == "unknown_shared_reduced_broad_share":
     filennum_per_group = 300
 else:
-    filennum_per_group = 1000
+    filennum_per_group = 1724
 
 targetrange = list(range(filennum_per_group))
 eachlen = round(filennum_per_group / 10)
@@ -163,26 +168,81 @@ def make_label_vec(label):
     return new_label_list
 
 
-def main(args):  # gnum (gpu_id, protein_group_id)
-    gnum = args[0]
-    min_posi_num_per_rna = args[1]
-    output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_red8_{min_posi_num_per_rna}_{min_posi_num_per_rna}"
-    try:
-        makedir_if_not_exist(output)
-    except Exception as e:
-        print(e)
-    tape_dict = get_tape_out_dict()
+def simple_main():
+    for btype in ["hb", "pi"]:
+        if btype == "hb":
+            arr = np.load(f"{input}training_data/attn_analysis_hb/0.npy", allow_pickle=True)
+            ogroup = "attn_analysis_hb"
+        else:
+            arr = np.load(f"{input}training_data/attn_analysis_hb/0.npy", allow_pickle=True)
+            ogroup = "attn_analysis_pi"
+
+        hbpot_arr = np.load(f"{hbpot_path}/0.npz", allow_pickle=True)["pot"]
+        pipot_arr = np.load(f"{pipot_path}/0.npz", allow_pickle=True)["pot"]
+
+        pro_id_arr, pro_token_arr, rna_token_arr, label_arr, pro_mask_arr, cross_mask_arr = None, None, None, None, None, None
+        for idx, (item, hpot, ppot) in enumerate(zip(arr, hbpot_arr, pipot_arr)):
+            # print(idx)
+            pro_array_tokenized, pro_len = ptokenize(PCODES, item[1])
+            rna_array_tokenized = rtokenize(RCODES, item[2])
+            if idx == 0:
+                pro_id_arr = np.atleast_2d([int(item[0])])
+                p_tape_arr = tape_dict[int(item[0])]
+                pro_token_arr = np.array(pro_array_tokenized)[np.newaxis, :]
+                rna_token_arr = np.array(rna_array_tokenized)[np.newaxis, :]
+                label_arr = make_label_vec(item[3])
+                pro_mask_arr = make_pmask(pro_len)
+                cross_mask_arr = make_cross_mask(pro_len)
+                hpots = hpot[np.newaxis, :]
+                ppots = ppot[np.newaxis, :]
+            else:
+                pro_id_arr = np.concatenate([pro_id_arr, np.atleast_2d([int(item[0])])], axis=0)
+                p_tape_arr = np.concatenate([p_tape_arr, tape_dict[int(item[0])]], axis=0)
+                pro_token_arr = np.concatenate([pro_token_arr, np.array(pro_array_tokenized)[np.newaxis, :]], axis=0)
+                rna_token_arr = np.concatenate([rna_token_arr, np.array(rna_array_tokenized)[np.newaxis, :]], axis=0)
+                label_arr = np.concatenate([label_arr, make_label_vec(item[3])], axis=0)
+                pro_mask_arr = np.concatenate([pro_mask_arr, make_pmask(pro_len)], axis=0)
+                cross_mask_arr = np.concatenate([cross_mask_arr, make_cross_mask(pro_len)], axis=0)
+                hpots = np.concatenate([hpots, hpot[np.newaxis, :]], axis=0)
+                ppots = np.concatenate([ppots, ppot[np.newaxis, :]], axis=0)
+        # ogroup: "all5_small_tape" when known protein
+        if not os.path.exists(f"{output}{ogroup}/{PDBID}"):
+            os.mkdir(f"{output}{ogroup}/{PDBID}")
+        if moder == "attn_ana":
+            np.savez_compressed(f"{output}{ogroup}/{PDBID}/0", proid=pro_id_arr, protok=pro_token_arr, rnatok=rna_token_arr, p_tape_arr=p_tape_arr,
+                                label=label_arr, pro_mask=pro_mask_arr, cross_mask=cross_mask_arr, hb_pots=hpots, pi_pots=ppots)
+        else:
+            np.savez_compressed(f"{output}{ogroup}/0", proid=pro_id_arr, protok=pro_token_arr, rnatok=rna_token_arr, p_tape_arr=p_tape_arr,
+                                label=label_arr, pro_mask=pro_mask_arr, cross_mask=cross_mask_arr, hb_pots=hpots, pi_pots=ppots)
+
+
+def main(gnum):  # gnum (gpu_id, protein_group_id)
+    if moder == "shared":
+        group = f"{moder}_{reduce_level}"
+    else:
+        print(f"gnum {gnum}")
+        try:
+            if len(gnum) == 2:
+                group = gnum[1]  # 0-4
+                gnum = gnum[0]   # 0-9
+        except TypeError:
+            pass
+        else:
+            if group is not None:  # when unknown protein, save to the group folder
+                if not os.path.exists(f"{output}"):
+                    os.mkdir(f"{output}")
     if gnum == 9:
         thisrange = targetrange[eachlen * gnum:]
     else:
         thisrange = targetrange[eachlen * gnum: eachlen * (gnum + 1)]
+    print(f"thisrange {thisrange}")
     for i in thisrange:
         try:
             arr = np.load(f"{input}/{i}.npy", allow_pickle=True)
             hbpot_arr = np.load(f"{hbpot_path}/{i}.npz", allow_pickle=True)["pot"]
             pipot_arr = np.load(f"{pipot_path}/{i}.npz", allow_pickle=True)["pot"]
-        except Exception as e:
-            print(e)
+        except OSError:
+            print("OSError")
             continue
 
         pro_id_arr, pro_token_arr, rna_token_arr, label_arr, pro_mask_arr, cross_mask_arr, red_idx_arr \
@@ -205,6 +265,9 @@ def main(args):  # gnum (gpu_id, protein_group_id)
                     cross_mask_arr = make_cross_mask(pro_len)
                     hpots = hpot[np.newaxis, :]
                     ppots = ppot[np.newaxis, :]
+                    if gnum == 0:
+                        print(f"ptoks {reduced_ptoks}")
+                        print(f"hpots {hpots}")
                     reduced_ptoks_arr = np.array(reduced_ptoks)[np.newaxis, :]
                     red_idx_arr = add_zero_pad_to_redidx(np.array([item[5]]))
                 else:
@@ -222,32 +285,21 @@ def main(args):  # gnum (gpu_id, protein_group_id)
         except TypeError:
             pass
         # # ogroup: "all5_small_tape" when known protein
+        output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_red8_{}_{}/"
         if WRITE == 1:
             np.savez_compressed(f"{output}/{i}", proid=pro_id_arr, protok=pro_token_arr, rnatok=rna_token_arr, p_tape_arr=p_tape_arr,
                 label=label_arr, pro_mask=pro_mask_arr, cross_mask=cross_mask_arr, hb_pots=hpots, pi_pots=ppots, reduced_index=red_idx_arr,
                             reduced_ptoks=reduced_ptoks_arr)
 
 
-def tardir(least_posi_count):
-    os.chdir("/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/")
-    # call([f"cd /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/"], shell=True)
-    call([f"tar -cvzf mydata_red8.tar.gz mydata_red8_{least_posi_count}_{least_posi_count}"], shell=True)
-    call([f"scp -r -P 3939 /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_red8.tar.gz kimura.t@131.112.137.52:/home/kimura.t/rbpcamas/data/"], shell=True)
-
-
-def runs8(least_posi_count_per_rna=10):
-    p = Pool(10)
-    arglist = []
-    for i in range(10):
-        arglist.append([i, least_posi_count_per_rna])
-    p.map(main, arglist)
-    p.close()
-    tardir(least_posi_count_per_rna)
-
-
 # -------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------
 
+tape_dict = get_tape_out_dict()
+print(f"tape_dict.keys() {len(tape_dict.keys())}")
+
 if __name__ == '__main__':
-    runs8()
+    p = Pool(10)
+    p.map(main, range(10))
+    p.close()
