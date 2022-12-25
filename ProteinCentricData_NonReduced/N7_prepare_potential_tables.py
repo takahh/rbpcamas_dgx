@@ -29,10 +29,8 @@ one2three_dict = {'A': 'ALA', 'R': 'ARG', 'N': 'ASN', 'D': 'ASP', 'C': 'CYS', 'E
 best_pot_normed = f"/Users/mac/Documents/T3_groupdisk_download_manual/RNPopt/RNPopt/data/result/eval4/optimized_normed_pot_list/best_pot_subset1_nocv.csv"
 
 path = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/"
-"/Users/mac/Documents/RBP_CAMAS/data/newdata/nonreduced/aug_potentials/"
-if rmode == "all":
-    # /Users/mac/Documents/RBP_CAMAS/data/newdata/batched_nparray/red8
-    PATH2 = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/nonreduced/tokens_without_potentials/"
+# /Users/mac/Documents/RBP_CAMAS/data/newdata/batched_nparray/red8
+inputpath = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/batched_nparray/nored/"
 
 promaxdict = {20: 2805, 13: 1609, 8: 986, 4: 609}
 maxprolen = promaxdict[REDUCE_LEVEL]
@@ -150,7 +148,7 @@ def makeall():
     for type in ["HB", "PI"]:
         maxfile_num = 1500
         start_num = 0
-        seq_file = f"{PATH2}"
+        seq_file = f"{inputpath}"
         main(mode, type, maxfile_num, seq_file, start_num)
 
 
