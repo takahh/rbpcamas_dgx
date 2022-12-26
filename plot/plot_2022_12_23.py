@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 # constant
 # -------------------------------------------------------------------
 path = "/Users/mac/rbpcamas_dgx/2022-12-23-07-20_err.log"
+figpath = path.replace(".log", ".png")
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
@@ -61,9 +62,8 @@ def main():
                     subauclist, sublosslist = [], []
                     totalstep = 0
                     epochcount += 1
-        print(allauclist)
-        print(alllosslist)
         plt.plot(range(len(alllosslist)), alllosslist)
+        plt.savefig(figpath)
         plt.show()
 
 

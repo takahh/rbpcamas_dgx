@@ -16,24 +16,19 @@ import os
 # constant
 # -------------------------------------------------------------------
 
-# ##### ####### ####### ####### ####### ####### ####### ####### #######
-rmode = "all"  # all / lnc / lnc_unknown / attn_ana_hb / attn_ana_pi
-REDUCE_LEVEL = 8  # 20, 13, 8, 4
-# ###### ####### ####### ###### ####### ####### ####### ####### #######
-
+# dict constant
 aminos = ['ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLU', 'GLN', 'GLY', 'HIS', 'ILE', 'LEU', 'LYS', 'MET', 'PHE', 'PRO',
           'SER', 'THR', 'TRP', 'TYR', 'VAL']
 baces = ['A', 'C', 'G', 'U']
 aminos_pi = ["ARG", "TRP", "ASN", "HIS", "GLU", "GLN", "TYR", "PHE", "ASP"]
 one2three_dict = {'A': 'ALA', 'R': 'ARG', 'N': 'ASN', 'D': 'ASP', 'C': 'CYS', 'E': 'GLU', 'Q': 'GLN', 'G': 'GLY', 'H': 'HIS', 'I': 'ILE', 'L': 'LEU', 'K': 'LYS', 'M': 'MET', 'F': 'PHE', 'P': 'PRO', 'S': 'SER', 'T': 'THR', 'W': 'TRP', 'Y': 'TYR', 'V': 'VAL'}
 best_pot_normed = f"/Users/mac/Documents/T3_groupdisk_download_manual/RNPopt/RNPopt/data/result/eval4/optimized_normed_pot_list/best_pot_subset1_nocv.csv"
+promaxdict = {20: 2805}
+maxprolen = promaxdict[20]
 
+# paths
 path = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/"
-# /Users/mac/Documents/RBP_CAMAS/data/newdata/batched_nparray/red8
 inputpath = f"/Users/mac/Documents/RBP_CAMAS/data/newdata/batched_nparray/nored/"
-
-promaxdict = {20: 2805, 13: 1609, 8: 986, 4: 609}
-maxprolen = promaxdict[REDUCE_LEVEL]
 
 
 # -------------------------------------------------------------------
@@ -105,8 +100,6 @@ def main(mode, type, maxfilenum, seq_file, startnum=0, group=None):  # mode : kn
             # when known,
             attn_to_write_list = []
             # # change here
-            print(idx)
-            print(item)
             rna_seq = item[2]
             protein_seq = item[1]
             for pcount in range(maxprolen):
@@ -143,10 +136,11 @@ def main(mode, type, maxfilenum, seq_file, startnum=0, group=None):  # mode : kn
         np.savez_compressed(f"{attn_out_dir}/{i}", pot=np.array(all_list))
 
 
-def makeall():
+def runn7():
+    os.environ['TMPDIR'] = "/Users/mac/Downloads/tmp"
     mode = "known"  # known protein patten
     for type in ["HB", "PI"]:
-        maxfile_num = 1500
+        maxfile_num = 1002
         start_num = 0
         seq_file = f"{inputpath}"
         main(mode, type, maxfile_num, seq_file, start_num)
@@ -157,4 +151,4 @@ def makeall():
 # -------------------------------------------------------------------
 if __name__ == '__main__':
     os.environ['TMPDIR'] = "/Users/mac/Downloads/tmp"
-    makeall()
+    runn7()

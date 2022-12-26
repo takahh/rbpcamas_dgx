@@ -62,9 +62,9 @@ def find_overlaps(chromo):
             # print(f"search for overlaps between {protein_name} and {targetfile}..")
             if protein_name not in done_proteins_list:
                 done_proteins_list.append(protein_name)
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.3 > {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.2 -F 0.8 > {outputpath}{targetfile}"
             else:
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.3 >> {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.2 -F 0.8 >> {outputpath}{targetfile}"
             call([command], shell=True)
 
 

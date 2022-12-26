@@ -84,7 +84,7 @@ def reset_dirs(output):
             pass
 
 
-def runs6(max_posi_count_per_rna=10):
+def runn6(max_posi_count_per_rna=10):
     reset_dirs(output)
     datalist = []
     pro_id_dict = get_pro_id_dict()
@@ -120,6 +120,7 @@ def runs6(max_posi_count_per_rna=10):
             for pronames in selected_posis:
                 proid = pro_id_dict[pronames]
                 proseq = get_proseq(pronames)
+                print("adding posi")
                 datalist.append([proid, proseq, rnaseq, 1])
             # ------------------------------------
             # make data from negative proteins
@@ -128,12 +129,15 @@ def runs6(max_posi_count_per_rna=10):
                 try:
                     proid = pro_id_dict[pronames]
                 except KeyError:
+                    print("KeyError!!!")
                     continue
+                print("adding nega")
                 proseq = get_proseq(pronames)
                 datalist.append([proid, proseq, rnaseq, 0])
         # -----------
         # batchfy
         # -----------
+        random.shuffle(datalist)
         final_arr = np.array(datalist)
         itermax = final_arr.shape[0] // 5
 
@@ -147,4 +151,4 @@ def runs6(max_posi_count_per_rna=10):
 # main
 # -------------------------------------------------------------------
 if __name__ == '__main__':
-    runs6()
+    runn6()
