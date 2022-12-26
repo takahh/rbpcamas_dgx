@@ -14,8 +14,8 @@ from matplotlib import pyplot as plt
 # -------------------------------------------------------------------
 # constant
 # -------------------------------------------------------------------
-path = "/Users/mac/rbpcamas_dgx/2022-12-23-07-20_err.log"
-figpath = path.replace(".log", ".png")
+path = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/mydata_nored_15_152022-12-26-16-43_aug_1err.log"
+figpath = f"{path.split('/')[-1]}plot.png"
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
