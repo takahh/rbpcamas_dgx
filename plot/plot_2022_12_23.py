@@ -23,7 +23,7 @@ figpath = path.replace(".log", ".png")
 
 def main():
     with open(path) as f:
-        filenum = 160  # 4000 / 25 (20 / 4 * 5)
+        filenum = 80  # 200 / 25 (20 / 4 * 5)
         allauclist, alllosslist = [], []
         subauclist_all, sublosslist_all, pred_arr, label_arr = [], [], None, None
         totalstep = 0
