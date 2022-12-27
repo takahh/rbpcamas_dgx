@@ -159,7 +159,7 @@ def make_label_vec(label):
 def main(args):  # gnum (gpu_id, protein_group_id)
     gnum = args[0]
     min_posi_num_per_rna = args[1]
-    output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored_{min_posi_num_per_rna}_{min_posi_num_per_rna}"
+    output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored_{min_posi_num_per_rna}_{min_posi_num_per_rna}_f_{args[2]}_F_{args[3]}"
     try:
         makedir_if_not_exist(output)
     except Exception as e:
@@ -226,11 +226,11 @@ def tardir(least_posi_count):
     call([f"scp -r -P 3939 /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored.tar.gz kimura.t@131.112.137.52:/home/kimura.t/rbpcamas/data/"], shell=True)
 
 
-def runn8(least_posi_count_per_rna=10):
+def runn8(least_posi_count_per_rna, fval, large_fval):
     p = Pool(10)
     arglist = []
     for i in range(10):
-        arglist.append([i, least_posi_count_per_rna])
+        arglist.append([i, least_posi_count_per_rna, fval, large_fval])
     p.map(main, arglist)
     p.close()
     tardir(least_posi_count_per_rna)

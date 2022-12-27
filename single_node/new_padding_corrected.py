@@ -14,7 +14,6 @@ import numpy as np
 import tensorflow as tf
 import os, gc
 import datetime
-# import tensorflow_addons as tfa
 from subprocess import call
 #########################
 # Horovod, GPU Setup
@@ -908,10 +907,12 @@ def opt_trfmr(tfconfig):
     # ------------------------------------------------
     # callbacks and dataset
     # ------------------------------------------------
-    starttime = time.process_time()
-    optimizer = tf.keras.optimizers.Adam(learning_rate)
-    #optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
-    #                                        weight_decay=1e-5, clipvalue=1)
+    if tfconfig.optimizer == "adam":
+        optimizer = tf.keras.optimizers.Adam(learning_rate)
+    else:
+        import tensorflow_addons as tfa
+        optimizer = tfa.optimizers.RectifiedAdam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9,
+                                            weight_decay=1e-5, clipvalue=1)
     current_time = datetime.datetime.now().strftime("%Y%m%d")
     checkpoint_path_no_date = f"{tfconfig.checkpoint_path}"
     checkpoint_path_with_date = f"{tfconfig.checkpoint_path}_{current_time}"
@@ -986,7 +987,7 @@ def opt_trfmr(tfconfig):
         # split into three sets
         combined_dataset_train = combined_dataset.take(int(train_files))
         combined_dataset_test = combined_dataset.skip(int(train_files)).take(int(test_files))
-        combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+        combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
         combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
     else:  # run analysis
         combined_dataset_test = combined_dataset2.take(4)
@@ -1078,6 +1079,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_files', type=int)
     parser.add_argument('--file_count_max', type=int)
     parser.add_argument('--test_files', type=int)
+    parser.add_argument('--optimizer')
     parser.add_argument('--number_to_multiply_to_stats', type=int)
     
     #########################
@@ -1102,6 +1104,7 @@ if __name__ == '__main__':
     config.roc_data_log = args.roc_data_log
     config.cross_dff = args.cross_dff
     config.keyword = args.keyword
+    config.optimizer = args.optimizer
     config.training = args.training
     config.batch_size = args.batch_size
     config.test_batch_size = args.test_batch_size

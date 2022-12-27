@@ -39,7 +39,7 @@ def makedir_if_not_exist(path_to_check):
         os.mkdir(path_to_check)
 
 
-def find_overlaps(chromo):
+def find_overlaps(chromo, fvalue, lfvalue):
     done_proteins_list = []
     for files in os.listdir(f"{base_file_path}{chromo}"):  # per 1 base file (1 protein and 1 chromosome)
 
@@ -62,9 +62,9 @@ def find_overlaps(chromo):
             # print(f"search for overlaps between {protein_name} and {targetfile}..")
             if protein_name not in done_proteins_list:
                 done_proteins_list.append(protein_name)
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.2 -F 0.8 > {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f {fvalue} -F {lfvalue} > {outputpath}{targetfile}"
             else:
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f 0.2 -F 0.8 >> {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f {fvalue} -F {lfvalue} >> {outputpath}{targetfile}"
             call([command], shell=True)
 
 
@@ -98,13 +98,13 @@ def make_base_files(targetchr):
                         fo.writelines(lines)
 
 
-def runs1():
+def runs1(f_val, larg_f_val):
+    # for i in range(1, 2):
+    #     # print(f"------------ CHROMOSOME {i}")
+    #     make_base_files(f"chr{i}")
     for i in range(1, 2):
         # print(f"------------ CHROMOSOME {i}")
-        make_base_files(f"chr{i}")
-    for i in range(1, 2):
-        # print(f"------------ CHROMOSOME {i}")
-        find_overlaps(f"chr{i}")
+        find_overlaps(f"chr{i}", f_val, larg_f_val)
 
 
 # -------------------------------------------------------------------

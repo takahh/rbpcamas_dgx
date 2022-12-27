@@ -58,7 +58,7 @@ def main():
                 # calc. AUC and save to lists, the end of epoch
                 if totalstep == filenum:
                     allauclist.append(metrics.roc_auc_score(label_arr[:, 1], pred_arr[:, 1]))
-                    alllosslist.append(metrics.log_loss(label_arr, pred_arr))
+                    alllosslist.append(metrics.log_loss(  , pred_arr))
                     subauclist, sublosslist = [], []
                     totalstep = 0
                     epochcount += 1
