@@ -37,21 +37,24 @@ def runs4(least_posi_count_per_rna=10):
             firststring = (ele[0][:-2].split(","))
             protein_list = [x.replace("]", "").replace("'", "") if "]" in x else x for x in ele[1].split(",")]
             protein_list = [x.replace("'", "").replace(" ", "").replace('"\n', '') for x in protein_list]
+            protein_list = protein_list[:-1]
+
+            grey_protein_list = [x.replace("]", "").replace("'", "") if "]" in x else x for x in ele[2].split(",")]
+            grey_protein_list = [x.strip().replace("'", "").replace(" ", "").replace('"\n', '') for x in grey_protein_list]
             # -----------------
             # get negative list
             # -----------------
             gap_list = list(set(all_protein_list).difference(set(protein_list)))
+            gap_list = list(set(gap_list).difference(set(grey_protein_list)))
             posicount = len(protein_list)
             negacount = len(gap_list)
             # if posicount + negacount != 150:
             #     print(lines)
             # both should be greater than 20
-            print(posicount)
             if posicount < least_posi_count_per_rna or negacount < least_posi_count_per_rna:
                 continue
             if ".DS_Store" in gap_list:
                 gap_list.remove(".DS_Store")
-            print(f"posi {(posicount)}, nega {(negacount)}")
             random.shuffle(gap_list)
             random.shuffle(protein_list)
             # if posicount > negacount:
@@ -60,8 +63,6 @@ def runs4(least_posi_count_per_rna=10):
             # else:
             #     gap_list = gap_list[:posicount]
             #     protein_list = protein_list[:posicount]
-            print(len(gap_list))
-            print(len(protein_list))
             # print(f"{','.join(firststring)},{protein_list},{gap_list}\n")
             fo.writelines(f"{','.join(firststring)},{protein_list},{gap_list}\n")
 

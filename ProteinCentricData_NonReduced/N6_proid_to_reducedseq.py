@@ -118,6 +118,7 @@ def runn6(max_posi_count_per_rna=10):
             # make data from positive proteins
             # ------------------------------------
             for pronames in selected_posis:
+                pronames = pronames.replace('"', '')
                 proid = pro_id_dict[pronames]
                 proseq = get_proseq(pronames)
                 print("adding posi")

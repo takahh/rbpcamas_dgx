@@ -146,12 +146,9 @@ def make_cross_mask(protein_length):
 
 
 def make_label_vec(label):
-    print(label)
     if int(label) == 1:
-        print("label is 1")
         new_label_list = np.array([[0, 1]], dtype="float32")
     else:
-        print("label is 0")
         new_label_list = np.array([[1, 0]], dtype="float32")
     return new_label_list
 
@@ -159,7 +156,8 @@ def make_label_vec(label):
 def main(args):  # gnum (gpu_id, protein_group_id)
     gnum = args[0]
     min_posi_num_per_rna = args[1]
-    output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored_{min_posi_num_per_rna}_{min_posi_num_per_rna}_f_{args[2]}_F_{args[3]}"
+    dirname = f"mydata_nored_{min_posi_num_per_rna}_{min_posi_num_per_rna}_f_{args[2]}_F_{args[3]}"
+    output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/{dirname}/"
     try:
         makedir_if_not_exist(output)
     except Exception as e:
@@ -219,10 +217,11 @@ def main(args):  # gnum (gpu_id, protein_group_id)
                 label=label_arr, pro_mask=pro_mask_arr, cross_mask=cross_mask_arr, hb_pots=hpots, pi_pots=ppots)
 
 
-def tardir(least_posi_count):
+def tardir(least_posi_count, fval, large_fval):
+    dirname = f"mydata_nored_{least_posi_count}_{least_posi_count}_f_{fval}_F_{large_fval}"
     os.chdir("/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/")
     # call([f"cd /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/"], shell=True)
-    call([f"tar -cvzf mydata_nored.tar.gz mydata_nored_{least_posi_count}_{least_posi_count}"], shell=True)
+    call([f"tar -cvzf mydata_nored.tar.gz {dirname}"], shell=True)
     call([f"scp -r -P 3939 /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored.tar.gz kimura.t@131.112.137.52:/home/kimura.t/rbpcamas/data/"], shell=True)
 
 
@@ -233,7 +232,7 @@ def runn8(least_posi_count_per_rna, fval, large_fval):
         arglist.append([i, least_posi_count_per_rna, fval, large_fval])
     p.map(main, arglist)
     p.close()
-    tardir(least_posi_count_per_rna)
+    tardir(least_posi_count_per_rna, fval, large_fval)
 
 
 # -------------------------------------------------------------------

@@ -21,9 +21,9 @@ from N8_tokenizer import runn8
 # intersectBed -f value
 F_VALUE = 0.01
 # intersectBed -F value
-LARGE_F_VALUE = 0.50
+LARGE_F_VALUE = 0.80
 # Min posi count per rna
-LEAST_POSI_COUNT_PER_RNA = 40
+LEAST_POSI_COUNT_PER_RNA = 20
 # number of uniques rna
 MAX_SITE_COUNT = 2 * (5000//(LEAST_POSI_COUNT_PER_RNA * 2))
 # -------------------------------------------------------------------
@@ -32,10 +32,10 @@ MAX_SITE_COUNT = 2 * (5000//(LEAST_POSI_COUNT_PER_RNA * 2))
 
 
 def main():
-    # print("#### S1 start ####")
-    runs1(F_VALUE, LARGE_F_VALUE)
-    print("#### S2 start ####")
-    runs2()
+    # # print("#### S1 start ####")
+    # runs1()
+    # print("#### S2 start ####")
+    runs2(LARGE_F_VALUE)
     print("#### S3 start ####")
     runs3(LEAST_POSI_COUNT_PER_RNA, MAX_SITE_COUNT)
     print("#### S4 start ####")

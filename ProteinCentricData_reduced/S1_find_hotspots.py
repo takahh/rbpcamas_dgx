@@ -39,7 +39,7 @@ def makedir_if_not_exist(path_to_check):
         os.mkdir(path_to_check)
 
 
-def find_overlaps(chromo, fvalue, lfvalue):
+def find_overlaps(chromo):
     done_proteins_list = []
     for files in os.listdir(f"{base_file_path}{chromo}"):  # per 1 base file (1 protein and 1 chromosome)
 
@@ -62,9 +62,9 @@ def find_overlaps(chromo, fvalue, lfvalue):
             # print(f"search for overlaps between {protein_name} and {targetfile}..")
             if protein_name not in done_proteins_list:
                 done_proteins_list.append(protein_name)
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f {fvalue} -F {lfvalue} > {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao > {outputpath}{targetfile}"
             else:
-                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao -f {fvalue} -F {lfvalue} >> {outputpath}{targetfile}"
+                command = f"intersectBed -a {inputfile} -b {source_path}{targetfile} -wao >> {outputpath}{targetfile}"
             call([command], shell=True)
 
 
@@ -80,6 +80,9 @@ def make_base_files(targetchr):
                 continue
             protein_name = ""
             # chr14_GL000194v1_random	72393	72489	GEMIN5_K562_rep0 ...
+            # --------------------------------------------
+            # get protein name from the contents
+            # --------------------------------------------
             with open(f"{source_path}{filenames}") as f:
                 for lines in f.readlines():
                     ele = lines.split()
@@ -89,6 +92,9 @@ def make_base_files(targetchr):
                     else:
                         done_proteins_list.append(protein_name)
                     break
+            # --------------------------------------------
+            # check length and write the line if acccepted
+            # --------------------------------------------
             with open(f"{source_path}{filenames}") as f, open(f"{base_file_path}{targetchr}/{protein_name}.bed", "w") as fo:
                 for lines in f.readlines():
                     ele = lines.split()
@@ -98,13 +104,13 @@ def make_base_files(targetchr):
                         fo.writelines(lines)
 
 
-def runs1(f_val, larg_f_val):
+def runs1():
     # for i in range(1, 2):
     #     # print(f"------------ CHROMOSOME {i}")
     #     make_base_files(f"chr{i}")
     for i in range(1, 2):
         # print(f"------------ CHROMOSOME {i}")
-        find_overlaps(f"chr{i}", f_val, larg_f_val)
+        find_overlaps(f"chr{i}")
 
 
 # -------------------------------------------------------------------

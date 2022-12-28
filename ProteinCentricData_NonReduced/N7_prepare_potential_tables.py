@@ -92,7 +92,7 @@ def main(mode, type, maxfilenum, seq_file, startnum=0, group=None):  # mode : kn
             attn_out_dir = f"{path}nonreduced/attn_arrays_pi/"
 
     # for i in range(maxfilenum - 1, 0, -1):
-    for i in range(startnum, maxfilenum):
+    for i in range(startnum, len(seq_dict.keys())):
         all_list = None
         for idx, item in enumerate(seq_dict[i]):  # repeat 5 times
             # print("|")
