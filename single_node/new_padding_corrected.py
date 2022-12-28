@@ -987,7 +987,10 @@ def opt_trfmr(tfconfig):
         # split into three sets
         combined_dataset_train = combined_dataset.take(int(train_files))
         combined_dataset_test = combined_dataset.skip(int(train_files)).take(int(test_files))
-        combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+        if tfconfig.shuffle == 1:
+            combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+        else:
+            combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
         combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
     else:  # run analysis
         combined_dataset_test = combined_dataset2.take(4)
@@ -1054,6 +1057,7 @@ if __name__ == '__main__':
     parser.add_argument('--pro_dff', type=int)
     parser.add_argument('--cross_dff', type=int)
     parser.add_argument('--keyword')
+    parser.add_argument('--shuffle')
     parser.add_argument('--training', type=int)
     parser.add_argument('--batch_size', type=int)
     parser.add_argument('--max_epoch', type=int)
@@ -1123,6 +1127,7 @@ if __name__ == '__main__':
     config.dropout_rate = args.dropout_rate * 0.1
     config.run_attn_analysis = args.run_attn_analysis
     config.pdbid = args.pdbid
+    config.shuffle = args.shuffle
     config.file_count_max = args.file_count_max 
     config.train_files = args.train_files
     config.test_files = args.test_files

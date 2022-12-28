@@ -120,7 +120,7 @@ def ptokenize(vocab_list, seq, lenmax):
     return padded
 
 
-def rtokenize(vocab_list, seq):
+def rtokenize(vocab_list, seq):  # vocab_list = ["A", "G", "C", "U"]
     tokens = [vocab_list.index(x) + 1 if x in vocab_list else len(vocab_list) + 1 for x in seq]
     return tokens
 
