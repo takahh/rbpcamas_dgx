@@ -143,15 +143,5 @@ def extract_10000_from_original():
 # main
 # -------------------------------------------------------------------
 if __name__ == '__main__':
-    # extract_10000_from_original()
-    # fasta_header_simpler()
-    # make_fasta2db()
-
-    # p = Pool(PALARELL)
-    # p.map(run_mmseqs2, range(PALARELL))
-    # p.close()
-
-    # run_mmseqs2()
-    flist = get_file_list()
-    print(flist)
+    main()
 

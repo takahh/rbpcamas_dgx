@@ -23,9 +23,9 @@ F_VALUE = 0.01
 # intersectBed -F value
 LARGE_F_VALUE = 0.80
 # Min posi count per rna
-LEAST_POSI_COUNT_PER_RNA = 20
+LEAST_POSI_COUNT_PER_RNA = 10
 # number of uniques rna
-MAX_SITE_COUNT = 2 * (5000//(LEAST_POSI_COUNT_PER_RNA * 2))
+MAX_SITE_COUNT = 5000//(LEAST_POSI_COUNT_PER_RNA * 2) + 2
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------

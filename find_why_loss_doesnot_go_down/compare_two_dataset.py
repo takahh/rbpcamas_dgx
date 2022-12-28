@@ -39,8 +39,10 @@ def main():
     for files in arr.files:
         print(files)
         print(arr[files].shape)
-        print(f"{arr[files][0]}")
-
+        if "pi" in files:
+            print(f"{arr[files][0][:50]}")
+        else:
+            print(f"{arr[files][0]}")
 
 # -------------------------------------------------------------------
 # main

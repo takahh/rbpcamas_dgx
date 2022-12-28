@@ -45,21 +45,21 @@ def runs4(least_posi_count_per_rna=10):
             # get negative list
             # -----------------
             gap_list = list(set(all_protein_list).difference(set(protein_list)))
-            gap_list = list(set(gap_list).difference(set(grey_protein_list)))
+            gap_list = list(set(gap_list).difference(set(grey_protein_list)))  # ????
             posicount = len(protein_list)
             negacount = len(gap_list)
             # if posicount + negacount != 150:
             #     print(lines)
             # both should be greater than 20
-            if posicount < least_posi_count_per_rna or negacount < least_posi_count_per_rna:
-                continue
+            # if posicount < least_posi_count_per_rna or negacount < least_posi_count_per_rna:
+            #     continue
             if ".DS_Store" in gap_list:
                 gap_list.remove(".DS_Store")
-            random.shuffle(gap_list)
-            random.shuffle(protein_list)
-            # if posicount > negacount:
-            gap_list = gap_list[:least_posi_count_per_rna]
-            protein_list = protein_list[:least_posi_count_per_rna]
+            # random.shuffle(gap_list)
+            # random.shuffle(protein_list)
+            # # if posicount > negacount:
+            # gap_list = gap_list[:least_posi_count_per_rna]
+            # protein_list = protein_list[:least_posi_count_per_rna]
             # else:
             #     gap_list = gap_list[:posicount]
             #     protein_list = protein_list[:posicount]

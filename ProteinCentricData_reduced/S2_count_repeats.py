@@ -51,7 +51,7 @@ def runs2(large_f_value):
                         protein_name = ele[13].split("_")[0]
                         # classify the interaction if gray zone or clear white according to the larg_f_value
                         try:
-                            fraction_of_overlap_for_partner = int(ele[20])/(int(ele[12]) - int(ele[11]))
+                            fraction_of_overlap_for_partner = int(ele[20])/(int(ele[12]) - int(ele[11]) + 1)
                         except ValueError:
                             print("error in calculating fraction")
                             print(ele)
