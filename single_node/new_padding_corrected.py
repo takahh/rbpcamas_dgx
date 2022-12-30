@@ -1134,9 +1134,7 @@ if __name__ == '__main__':
     config.number_to_multiply_to_stats = args.number_to_multiply_to_stats
     config.reduced_pro_tokenlist = args.reduced_pro_tokenlist
     config.two_d_softm_mul_row_count = args.two_d_softm_mul_row_count
-    config.task_identifier = "node_" + str(config.node_name) + "_nodenum_" + str(config.num_of_node) + \
-                             "_aug_" + str(config.use_attn_augument) + "_twoD_" + str(config.two_d_softm) + \
-                             "_headnum_" + str(config.num_heads) + "_initLR_" + str(config.init_lr) + \
+    config.task_identifier = "_aug_" + str(config.use_attn_augument) + "_initLR_" + str(config.init_lr) + \
                              "_keywrd_" + str(config.keyword) + "_clip_coeff_" + str(config.clip_coeff) + \
                              "_cv_fold_id_" + str(config.cv_fold_id) + \
                              "_datamode_" + str(config.data_mode) + "_use_TAPE_feature_" + str(config.use_TAPE_feature)

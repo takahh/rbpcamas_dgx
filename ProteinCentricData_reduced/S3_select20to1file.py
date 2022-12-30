@@ -17,7 +17,7 @@ opath = "/Users/mac/Documents/RBP_CAMAS/data/newdata/freq25_32.csv"
 # -------------------------------------------------------------------
 
 
-def runs3(least_posi_count_per_rna=10, max_sites=1000):
+def runs3(max_sites=1000):
     datalist = []
     with open(f"{opath}", "w") as fo:
         for files in os.listdir(path):
@@ -27,8 +27,8 @@ def runs3(least_posi_count_per_rna=10, max_sites=1000):
                         # chr19-582939-583038,135,"['WDR43', 'DDX6',...]
                         freq = int(lines.split(",")[1])
                         # filter by positive count
-                        if least_posi_count_per_rna - 1 < freq < 150 - least_posi_count_per_rna:
-                            datalist.append(f"{files},{lines}")
+                        # if least_posi_count_per_rna - 1 < freq < 150 - least_posi_count_per_rna:
+                        datalist.append(f"{files},{lines}")
         shuffle(datalist)
         fo.writelines(datalist[:max_sites])
 

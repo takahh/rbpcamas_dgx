@@ -140,7 +140,7 @@ def runn6(max_posi_count_per_rna=10):
         # -----------
         random.shuffle(datalist)
         final_arr = np.array(datalist)
-        itermax = final_arr.shape[0] // 5
+        itermax = 1000
 
         for i in range(itermax):
             # if final_arr[i * count_per_file: (i + 1) * count_per_file].shape[0] != 5:

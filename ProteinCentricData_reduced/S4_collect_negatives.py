@@ -26,7 +26,7 @@ def get_proteins():
     return protein_list
 
 
-def runs4(least_posi_count_per_rna=10):
+def runs4():
     all_protein_list = get_proteins()
     with open(path) as f, open(opath, "w") as fo:
         for lines in f.readlines():

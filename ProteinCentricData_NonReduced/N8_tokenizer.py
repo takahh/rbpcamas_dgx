@@ -155,8 +155,7 @@ def make_label_vec(label):
 
 def main(args):  # gnum (gpu_id, protein_group_id)
     gnum = args[0]
-    min_posi_num_per_rna = args[1]
-    dirname = f"mydata_nored_{min_posi_num_per_rna}_{min_posi_num_per_rna}_f_{args[2]}_F_{args[3]}"
+    dirname = f"mydata_nored_f_{args[1]}_F_{args[2]}"
     output = f"/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/{dirname}/"
     try:
         makedir_if_not_exist(output)
@@ -217,22 +216,22 @@ def main(args):  # gnum (gpu_id, protein_group_id)
                 label=label_arr, pro_mask=pro_mask_arr, cross_mask=cross_mask_arr, hb_pots=hpots, pi_pots=ppots)
 
 
-def tardir(least_posi_count, fval, large_fval):
-    dirname = f"mydata_nored_{least_posi_count}_{least_posi_count}_f_{fval}_F_{large_fval}"
+def tardir(fval, large_fval):
+    dirname = f"mydata_nored_f_{fval}_F_{large_fval}"
     os.chdir("/Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/")
     # call([f"cd /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/"], shell=True)
     call([f"tar -cvzf mydata_nored.tar.gz {dirname}"], shell=True)
     call([f"scp -r -P 3939 /Users/mac/Desktop/t3_mnt/reduced_RBP_camas/data/mydata_nored.tar.gz kimura.t@131.112.137.52:/home/kimura.t/rbpcamas/data/"], shell=True)
 
 
-def runn8(least_posi_count_per_rna, fval, large_fval):
+def runn8(fval, large_fval):
     p = Pool(10)
     arglist = []
     for i in range(10):
-        arglist.append([i, least_posi_count_per_rna, fval, large_fval])
+        arglist.append([i, fval, large_fval])
     p.map(main, arglist)
     p.close()
-    tardir(least_posi_count_per_rna, fval, large_fval)
+    tardir(fval, large_fval)
 
 
 # -------------------------------------------------------------------
