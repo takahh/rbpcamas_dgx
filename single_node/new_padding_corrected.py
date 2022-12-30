@@ -252,6 +252,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     # divide with squared root of dimension of leading vectors
     ########################################################
     scaled_attention_logits /= tf.math.sqrt(dk)
+    attn_weight_before = scaled_attention_logits
     ########################################################
     # add or multiply statistical potentials at Cross Attention Layers
     ########################################################
