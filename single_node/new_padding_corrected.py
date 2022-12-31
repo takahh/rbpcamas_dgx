@@ -593,6 +593,8 @@ class AttentionLayer(tf.keras.layers.Layer):  # basic attention calculation
         return out2, _
 
 
+strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.ReductionToOneDevice())
+
 class MultiHeadAttention(tf.keras.layers.Layer):
     def __init__(self, mhacfg):
         super(MultiHeadAttention, self).__init__()
@@ -605,38 +607,38 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.wv = tf.keras.layers.Dense(mhacfg.d_model, kernel_initializer=initializer)
         self.dense = tf.keras.layers.Dense(mhacfg.d_model, kernel_initializer=initializer)
         self.layernorm = tf.keras.layers.LayerNormalization(epsilon=1e-9)
-        # with strategy.scope():
-        # define coeffs for augmentation
-        if mhacfg.use_attn_augument == 1:
-            if mhacfg.clip_coeff == 1:
-                self.aug_weight_att = tf.compat.v1.get_variable(
-                    "aug_weight_att",
-                    shape=[1],
-                    trainable=True,
-                    dtype=tf.float32,
-                    constraint=lambda x: tf.clip_by_value(x, 0, 1),
-                    initializer=tf.constant_initializer(1))
-                self.aug_weight_aug = tf.compat.v1.get_variable(
-                    "aug_weight_aug",
-                    shape=[1],
-                    trainable=True,
-                    dtype=tf.float32,
-                    constraint=lambda x: tf.clip_by_value(x, 0, 1),
-                    initializer=tf.constant_initializer(1))
-            else:
-                self.aug_weight_att = tf.compat.v1.get_variable(
-                    "aug_weight_att",
-                    shape=[1],
-                    trainable=True,
-                    dtype=tf.float32,
-                    initializer=tf.constant_initializer(1))
-                self.aug_weight_aug = tf.compat.v1.get_variable(
-                    "aug_weight_aug",
-                    shape=[1],
-                    trainable=True,
-                    dtype=tf.float32,
-                    initializer=tf.constant_initializer(mhacfg.initial_aug_coeff))
-            tf.compat.v1.get_variable_scope().reuse_variables()
+        with strategy.scope():
+            # define coeffs for augmentation
+            if mhacfg.use_attn_augument == 1:
+                if mhacfg.clip_coeff == 1:
+                    self.aug_weight_att = tf.compat.v1.get_variable(
+                        "aug_weight_att",
+                        shape=[1],
+                        trainable=True,
+                        dtype=tf.float32,
+                        constraint=lambda x: tf.clip_by_value(x, 0, 1),
+                        initializer=tf.constant_initializer(1))
+                    self.aug_weight_aug = tf.compat.v1.get_variable(
+                        "aug_weight_aug",
+                        shape=[1],
+                        trainable=True,
+                        dtype=tf.float32,
+                        constraint=lambda x: tf.clip_by_value(x, 0, 1),
+                        initializer=tf.constant_initializer(1))
+                else:
+                    self.aug_weight_att = tf.compat.v1.get_variable(
+                        "aug_weight_att",
+                        shape=[1],
+                        trainable=True,
+                        dtype=tf.float32,
+                        initializer=tf.constant_initializer(1))
+                    self.aug_weight_aug = tf.compat.v1.get_variable(
+                        "aug_weight_aug",
+                        shape=[1],
+                        trainable=True,
+                        dtype=tf.float32,
+                        initializer=tf.constant_initializer(mhacfg.initial_aug_coeff))
+                tf.compat.v1.get_variable_scope().reuse_variables()
     def split_heads(self, x, batch_size):
         """Split the last dimension into (num_heads, depth).
         Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
@@ -977,7 +979,6 @@ def opt_trfmr(tfconfig):
     elif tfconfig.training == 0:
         callbacks = [CustomCallback()]
 
-    strategy = tf.distribute.MirroredStrategy(cross_device_ops=tf.distribute.ReductionToOneDevice())
     with strategy.scope():
         auc = tf.keras.metrics.AUC()
         loss_avg = tf.keras.metrics.Mean(name='train_loss')
