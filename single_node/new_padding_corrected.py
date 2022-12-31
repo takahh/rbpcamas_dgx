@@ -236,7 +236,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # one_on_rna = 1:rna-self, 0:protein-self, 2:cross
     matmul_qk = tf.cast(tf.matmul(q, k, transpose_b=True), tf.float32)  # (..., seq_len_q, seq_len_k)
-    dk = tf.cast(tf.shape(k)[-1], tf.float32)
+    # dk = tf.cast(tf.shape(k)[-1], tf.float32)
     # assign smask in Decoder's 1st layer
     if one_on_rna == 1:  # rna self
         mask = None
@@ -251,7 +251,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     ########################################################
     # divide with squared root of dimension of leading vectors
     ########################################################
-    scaled_attention_logits /= tf.math.sqrt(dk)
+    # scaled_attention_logits /= tf.math.sqrt(dk)
     attn_weight_before = scaled_attention_logits
     ########################################################
     # add or multiply statistical potentials at Cross Attention Layers
@@ -259,88 +259,58 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     if one_on_rna == 2:
         if tffig.use_attn_augument == 1:  # augment only if in a cross layer and the aug flag is on
             # ------------------------------------------
-            # Prepare Table to Add
+            # STATISTICAL POTENTIALS : prepare to add
             # ------------------------------------------
             table_to_augment_hb = tffig.statpot_hb
-            # print_data_features(table_to_augment_hb, "table_to_augment_hb")
             table_to_augment_pi = tffig.statpot_pi  # TensorShape([5, 2805, 101])
             table_to_augment = tf.transpose(tf.stack([table_to_augment_hb, table_to_augment_pi]),
                                             perm=[1, 0, 2, 3])  # [5, 2, 2805, 101]
-            # print_data_features(table_to_augment, "table_to_augment combined")
             try:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num],
                                              axis=1)  # [5, 4, 2805, 101]  THIS LINE IS WRONG!!!!
             except ValueError:
                 table_to_augment = tf.repeat(table_to_augment, repeats=[multiply_num, multiply_num + 1], axis=1)
-
-            # print_data_features(table_to_augment, "table_to_augment repeated")
             if scaled_attention_logits.shape[-1] != table_to_augment.shape[-1]:
                 table_to_augment = tf.transpose(table_to_augment, perm=[0, 1, 3, 2])
 
             # ------------------------------------------
+            # BASIC VECTORS : adjust so the max is 1.0, and multiply coeff to optimize
+            # ------------------------------------------
+            scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
+            scaled_attention_logits = tf.multiply(self.aug_weight_att, scaled_attention_logits)
+
+            # ------------------------------------------
             # Augment (Add or Multiply)
             # ------------------------------------------
-            scaled_attention_logits = tf.multiply(self.aug_weight_att, scaled_attention_logits)
-            # multiply something so the max to be 1.0
-            scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
-
             if tffig.aug_multiply == 0:  # when add two tables
-                # # ------------------------------------------
-                # # Scale KQ
-                # # ------------------------------------------
-                # scaled_attention_logits /= 2805
+                # ------------------------------------------
+                # SCALAR VALUE PREPARED
+                # ------------------------------------------
+                # apply coeff to stat pots
+                table_to_augment = tf.multiply(self.aug_weight_aug, table_to_augment)
                 # ------------------------------------------
                 # Apply coeff to potentials
                 # ------------------------------------------
-                # stats_to_add = self.aug_weight_aug * tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
-                stats_to_add = tf.multiply(self.aug_weight_aug, tffig.number_to_multiply_to_stats)
-                # print_data_features(stats_to_add, "table_to_augment x  tffig.number_to_multiply_to_stats")
-                # multiply something so the max to be 1.0
-                stats_to_add = tf.divide(stats_to_add, tf.reduce_max(stats_to_add))
-                # apply coeff
-                stats_to_add = tf.multiply(stats_to_add, tf.cast(table_to_augment, dtype="float32"))
-                # print_data_features(stats_to_add, "table_to_augment x table_to_augment x  tffig.number_to_multiply_to_stats")
-                # tf.print("#######")
-                # print_data_features(stats_to_add, "stats_to_add")
-                # print_data_features(scaled_attention_logits, "scaled_attention_logits before addition")
+                table_to_augment = tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
                 # ------------------------------------------
                 # Add
                 # ------------------------------------------
-                scaled_attention_logits += stats_to_add
-                # change so that the max is 1.0
-                scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
-                # print_data_features(scaled_attention_logits, "augmented weights before adding large nega")
-                # print_data_features(scaled_attention_logits, "scaled_attention_logits after addition")
+                scaled_attention_logits += table_to_augment
             else:  # multiply two tables element-wise
-                # print_data_features(table_to_augment, "table_to_augment before x10")
-                # table_to_augment = tf.multiply(tf.cast(table_to_augment, dtype="float32"), 20)
                 table_to_augment = tf.divide(table_to_augment, tf.reduce_max(table_to_augment))
-                # print_data_features(table_to_augment, "table_to_augment affter x10")
-                # table_to_augment = tf.keras.activations.sigmoid(table_to_augment)
-                # print_data_features(table_to_augment, "table_to_augment affter sigmoid")
-
-                # scaled_attention_logits = tf.divide(scaled_attention_logits, 20)
-                # print_data_features(scaled_attention_logits, "scaled_attention_logits before sigmoid")
-                # add large negative according to the mask
-                scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
-                # scaled_attention_logits = tf.keras.activations.sigmoid(scaled_attention_logits)
                 # change so that the max is 1.0
                 scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
-                # print_data_features(scaled_attention_logits, "scaled_attention_logits after sigmoid")
                 scaled_attention_logits = \
                     tf.math.multiply(tf.cast(table_to_augment, dtype="float32"), scaled_attention_logits)
-                # print_data_features(scaled_attention_logits, "scaled_attention_logits after augmentation(multiply)")
 
     ########################################################
     # add large negative values 7
     ########################################################
     scaled_attention_logits = add_large_negatives(scaled_attention_logits, mask, one_on_rna)
-    # print_data_features(scaled_attention_logits, "augmented weights after added large nega, before scaling")
 
     ########################################################
     # apply softmax
     ########################################################
-    # if tffig.use_attn_augument == 1:
     if tffig.two_d_softm == 1:
         # scaled_attention_logits = tf.divide(scaled_attention_logits, dk)
         # print_data_features(scaled_attention_logits, "scaled_attention_logits after scaling")
@@ -360,11 +330,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
         print_data_features(attention_weights, "attention after softmax after mul coeff row")
         attention_weights = tf.divide(attention_weights, tf.reduce_max(attention_weights))
     else:
-        # tf.print(f"scaled_attention_logits {scaled_attention_logits.shape}--{scaled_attention_logits.numpy()[0, :3, :10]}")
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
-    # tf.print(f"attention_weight after multiply mul_ coeff {attention_weights[0, :3, :10]}")
-    # else:
-    #     attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
     ########################################################
     # calculate weight matrix x V
     ########################################################
@@ -374,7 +340,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
     # pack matrices of cross attention
     ########################################################
     if one_on_rna == 2 and tffig.use_attn_augument == 1 and tffig.aug_multiply == 0:
-        attention_weights = [attn_weight_before, stats_to_add, attention_weights]
+        attention_weights = [attn_weight_before, table_to_augment, attention_weights]
 
     return output, attention_weights
 
