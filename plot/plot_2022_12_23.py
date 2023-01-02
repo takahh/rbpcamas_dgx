@@ -21,7 +21,7 @@ figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
 # -------------------------------------------------------------------
 
 
-def get_data_per_file2(filename):
+def get_data_per_file(filename):
     with open(filename) as f:
         allauclist, alllosslist = [], []
         print("working...")
