@@ -22,7 +22,7 @@ figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
 
 
 def get_data_per_file(filename):
-    with open(f"{bpath}{filename}") as f:
+    with open(filename) as f:
         filenum = 200  # 2000/40 * 4
         allauclist, alllosslist = [], []
         subauclist_all, sublosslist_all, pred_arr, label_arr = [], [], None, None
@@ -66,8 +66,7 @@ def get_data_per_file(filename):
 
 
 def get_file_names_from_old_to_new():
-    print(os.listdir(bpath))
-    errfilelist = [dirs for dirs in os.listdir(bpath) if "err" in dirs]
+    errfilelist = [f"{bpath}{dirs}" for dirs in os.listdir(bpath) if "err" in dirs]
     errfilelist.sort(key=lambda x: os.path.getmtime(x))
     print(errfilelist)
     return errfilelist
