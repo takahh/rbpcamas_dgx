@@ -23,14 +23,13 @@ figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
 
 def get_data_per_file(filename):
     with open(filename) as f:
-        allauclist, alllosslist = [], []
-        print("working...")
+        auclist, losslist = [], []
         for lines in f.readlines():
             if "loss" in lines and "step" in lines:
                 # 50/50 [==============================] - 164s 3s/step - loss: 0.6608 - auc: 0.6288
-                loss = lines.split("loss:")[1].split("auc")[0].strip()
-                print(f"###{loss}###")
-        return alllosslist
+                loss = float(lines.split("loss:")[1].split("auc")[0].replace(" -", "").replace(".", ""))
+                losslist.append(loss)
+        return losslist
 
 
 def get_file_names_from_old_to_new():
