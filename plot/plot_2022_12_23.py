@@ -27,7 +27,7 @@ def get_data_per_file(filename):
         for lines in f.readlines():
             if "loss" in lines and "step" in lines:
                 # 50/50 [==============================] - 164s 3s/step - loss: 0.6608 - auc: 0.6288
-                loss = float(lines.split("loss:")[1].split("auc")[0].replace(" -", "").replace(".", ""))
+                loss = float(lines.split("loss: ")[1].split(" - auc")[0])
                 losslist.append(loss)
         return losslist
 
@@ -47,6 +47,8 @@ def main():
     if not os.path.exists(figpath):
         os.mkdir(figpath)
     plt.plot(range(len(alllosslist)), alllosslist)
+    plt.xlabel("EPOCH")
+    plt.ylabel("LOSS")
     plt.savefig(f"{figpath}noaug.png")
     plt.show()
 
