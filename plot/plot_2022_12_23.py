@@ -49,6 +49,7 @@ def main():
         plt.plot(range(len(alllosslist)), alllosslist, label=label_dict[mode])
     plt.xlabel("EPOCH")
     plt.ylabel("LOSS")
+    plt.legend()
     plt.savefig(f"{figpath}loss.png")
 
 
