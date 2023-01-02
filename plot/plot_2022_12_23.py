@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 # -------------------------------------------------------------------
 # constant
 # -------------------------------------------------------------------
-bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/"
+bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/noaug/"
 figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
 # -------------------------------------------------------------------
 # function
