@@ -14,16 +14,16 @@ from matplotlib import pyplot as plt
 # -------------------------------------------------------------------
 # constant
 # -------------------------------------------------------------------
-path = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/mydata_nored_15_152022-12-26-16-43_aug_1err.log"
-figpath = f"{path.split('/')[-1]}plot.png"
+bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/"
+figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
 
 
-def main():
-    with open(path) as f:
-        filenum = 80  # 200 / 25 (20 / 4 * 5)
+def get_data_per_file(filename):
+    with open(f"{bpath}{filename}") as f:
+        filenum = 200  # 2000/40 * 4
         allauclist, alllosslist = [], []
         subauclist_all, sublosslist_all, pred_arr, label_arr = [], [], None, None
         totalstep = 0
@@ -62,9 +62,25 @@ def main():
                     subauclist, sublosslist = [], []
                     totalstep = 0
                     epochcount += 1
-        plt.plot(range(len(alllosslist)), alllosslist)
-        plt.savefig(figpath)
-        plt.show()
+        return alllosslist
+
+
+def get_file_names_from_old_to_new():
+    errfilelist = [dir for dir in os.listdir(bpath) if "err" in dir]
+    errfilelist.sort(key=lambda x: os.path.getmtime(x))
+    return errfilelist
+
+
+def main():
+    alllosslist = []
+    filelist = get_file_names_from_old_to_new()
+    for filename in filelist:
+        alllosslist.extend(get_data_per_file(filename))
+    if not os.path.exists(figpath):
+        os.mkdir(figpath)
+    plt.plot(range(len(alllosslist)), alllosslist)
+    plt.savefig(f"{figpath}noaug.png")
+    plt.show()
 
 
 # -------------------------------------------------------------------
