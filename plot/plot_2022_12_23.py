@@ -14,8 +14,9 @@ from matplotlib import pyplot as plt
 # -------------------------------------------------------------------
 # constant
 # -------------------------------------------------------------------
-bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/noaug/"
+bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/"
 figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
+label_dict = {"noaug": "Not Augmented", "aug": "Augmented"}
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
@@ -32,25 +33,23 @@ def get_data_per_file(filename):
         return losslist
 
 
-def get_file_names_from_old_to_new():
-    errfilelist = [f"{bpath}{dirs}" for dirs in os.listdir(bpath) if "out" in dirs]
+def get_file_names_from_old_to_new(path):
+    errfilelist = [f"{path}{dirs}" for dirs in os.listdir(path) if "out" in dirs]
     errfilelist.sort(key=lambda x: os.path.getmtime(x))
-    print(errfilelist)
     return errfilelist
 
 
 def main():
-    alllosslist = []
-    filelist = get_file_names_from_old_to_new()
-    for filename in filelist:
-        alllosslist.extend(get_data_per_file(filename))
-    if not os.path.exists(figpath):
-        os.mkdir(figpath)
-    plt.plot(range(len(alllosslist)), alllosslist)
+    plt.figure()
+    for mode in ["aug", "noaug"]:
+        alllosslist = []
+        filelist = get_file_names_from_old_to_new(f"{bpath}{mode}/")
+        for filename in filelist:
+            alllosslist.extend(get_data_per_file(filename))
+        plt.plot(range(len(alllosslist)), alllosslist, label=label_dict[mode])
     plt.xlabel("EPOCH")
     plt.ylabel("LOSS")
-    plt.savefig(f"{figpath}noaug.png")
-    plt.show()
+    plt.savefig(f"{figpath}loss.png")
 
 
 # -------------------------------------------------------------------
