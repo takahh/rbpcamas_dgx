@@ -34,7 +34,7 @@ def get_data_per_file(filename):
 
 
 def get_file_names_from_old_to_new():
-    errfilelist = [f"{bpath}{dirs}" for dirs in os.listdir(bpath) if "err" in dirs]
+    errfilelist = [f"{bpath}{dirs}" for dirs in os.listdir(bpath) if "out" in dirs]
     errfilelist.sort(key=lambda x: os.path.getmtime(x))
     print(errfilelist)
     return errfilelist
