@@ -303,9 +303,9 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
                 scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
                 scaled_attention_logits = \
                     tf.math.multiply(tf.cast(table_to_augment, dtype="float32"), scaled_attention_logits)
-        else:
-            scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
-            scaled_attention_logits = tf.multiply(2 * self.aug_weight_att, scaled_attention_logits)
+        # else:
+        #     scaled_attention_logits = tf.divide(scaled_attention_logits, tf.reduce_max(scaled_attention_logits))
+        #     scaled_attention_logits = tf.multiply(2 * self.aug_weight_att, scaled_attention_logits)
 
     ########################################################
     # add large negative values 7

@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 # -------------------------------------------------------------------
 bpath = "/home/kimura.t/rbpcamas/batch_files/Protein_centric/nored/"
 figpath = f"/home/kimura.t/rbpcamas/python/Figures/protein_cent/"
-label_dict = {"noaug": "Not Augmented", "noaug2": "Not Augmented2", "aug": "Augmented"}
+label_dict = {"noaug": "Not Augmented", "aug": "Augmented"}
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
@@ -41,7 +41,7 @@ def get_file_names_from_old_to_new(path):
 
 def main():
     plt.figure()
-    for mode in ["aug", "noaug", "noaug2"]:
+    for mode in ["aug", "noaug"]:
         alllosslist = []
         filelist = get_file_names_from_old_to_new(f"{bpath}{mode}/")
         for filename in filelist:
