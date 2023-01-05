@@ -7,9 +7,7 @@
 # import
 # -------------------------------------------------------------------
 import numpy as np
-from plot.plot_stat_of_data_per_RNA import freq_count
 from matplotlib import pyplot as plt
-from random import shuffle
 
 # -------------------------------------------------------------------
 # constant
