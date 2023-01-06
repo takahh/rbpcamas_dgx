@@ -979,7 +979,10 @@ def opt_trfmr(tfconfig):
         tf.print(combined_dataset_test)
     # run model
     if tfconfig.training == 1:
-        callbacks = [cp_callback_with_date, cp_callback_no_date, CustomCallback()]
+        if tfconfig.validation_in_training == 0:
+            callbacks = [cp_callback_with_date, cp_callback_no_date, CustomCallback()]
+        else:
+            callbacks = [CustomCallback()]
     elif tfconfig.training == 0:
         callbacks = [CustomCallback()]
 
