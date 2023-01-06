@@ -331,7 +331,7 @@ def scaled_dot_product_attention(self, k, q, v, tffig, one_on_rna):
             elif attention_weights.shape[2] == 101:
                 mul_coeff = 101
                 attention_weights = tf.multiply(attention_weights, mul_coeff)
-        print_data_features(attention_weights, "attention after softmax after mul coeff row")
+        # print_data_features(attention_weights, "attention after softmax after mul coeff row")
         attention_weights = tf.divide(attention_weights, tf.reduce_max(attention_weights))
     else:
         attention_weights = tf.cast(tf.keras.activations.softmax(scaled_attention_logits, axis=3), tf.float32)
@@ -758,7 +758,7 @@ def opt_trfmr(tfconfig):
                 map(self.flatten_n_batch, datalist[:9])
                 if tfconfig.use_TAPE_feature == 1:
                     tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
-            tfconfig.validation_in_training = 0
+            # tfconfig.validation_in_training = 0
             # print_data_features(tfconfig.statpot_hb, "tfconfig.statpot_hb after flatten batch")
 
             with tf.GradientTape() as tape:
@@ -799,7 +799,7 @@ def opt_trfmr(tfconfig):
                 , tfconfig.reduced_ptok = \
                 map(self.flatten_n_batch, datalist[:9])
 
-            tfconfig.validation_in_training = 1
+            # tfconfig.validation_in_training = 1
             if tfconfig.use_TAPE_feature == 1:
                 tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
             # predictions, pweight, rweight, pself, rself, proout, rnaout = self.transformer(tfconfig)
@@ -994,7 +994,10 @@ def opt_trfmr(tfconfig):
             else:
                 model.load_weights(checkpoint_path_no_date).expect_partial()
     if tfconfig.training == 1:
-        model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks)
+        if tfconfig.validation_in_training == 0:
+            model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks)
+        else:
+            model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks, validation_data=combined_dataset_test)
     elif tfconfig.training == 0:
         model.evaluate(combined_dataset_test)
 
@@ -1065,6 +1068,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_files', type=int)
     parser.add_argument('--optimizer')
     parser.add_argument('--number_to_multiply_to_stats', type=int)
+    parser.add_argument('--validation_in_training', type=int)
     
     #########################
     # put args to config
@@ -1075,6 +1079,7 @@ if __name__ == '__main__':
     config.run_on_local = args.run_on_local
     config.node_name = args.node_name
     config.use_attn_augument = args.use_attn_augument
+    config.validation_in_training = args.validation_in_training
     config.two_d_softm = args.two_d_softm
     config.use_TAPE_feature = args.use_TAPE_feature
     config.num_heads = args.num_heads
