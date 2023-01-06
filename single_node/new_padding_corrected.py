@@ -791,7 +791,7 @@ def opt_trfmr(tfconfig):
             
             if tfconfig.reduce_level == 20:
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
-                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.protok, tfconfig.p_tape_tf  = \
+                tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.protok = \
                     map(self.flatten_n_batch, datalist[:8])
             else:
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
