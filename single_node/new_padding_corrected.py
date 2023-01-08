@@ -830,6 +830,8 @@ def opt_trfmr(tfconfig):
             if tfconfig.roc_data_log == 1:
                 tf.print("test ROC_DATA:" + ":" + str(predictions.numpy()).replace('\n', '') + "-" + str(
                     tfconfig.label).replace('\n', ''))
+            tf.print(f"test_loss_avg.result() {loss_avg.result()}")
+            tf.print(f"test_auc.result() {auc.result()}")
             return {"test_auc": auc.result(), "test_loss": loss_avg.result()}
 
         @property
