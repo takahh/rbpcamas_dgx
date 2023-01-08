@@ -89,7 +89,7 @@ def runn6(max_posi_count_per_rna=10):
     datalist = []
     pro_id_dict = get_pro_id_dict()
     count = 0
-    rna_max_count = 5000//(max_posi_count_per_rna * 2) + 2
+    rna_max_count = 20000//(max_posi_count_per_rna * 2) + 2
     with open(inputpath) as f:
         # shuffle RNAs
         flines = f.readlines()
@@ -140,7 +140,7 @@ def runn6(max_posi_count_per_rna=10):
         # -----------
         random.shuffle(datalist)
         final_arr = np.array(datalist)
-        itermax = 1000
+        itermax = 6000
 
         for i in range(itermax):
             # if final_arr[i * count_per_file: (i + 1) * count_per_file].shape[0] != 5:

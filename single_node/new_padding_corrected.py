@@ -815,6 +815,8 @@ def opt_trfmr(tfconfig):
             ATTN_OUT = f"{tfconfig.basepath}/attn_out/"
             if not os.path.exists(f"{ATTN_OUT}/"):
                 os.mkdir(f"{ATTN_OUT}/")
+            if not os.path.exists(f"{ATTN_OUT}/{tfconfig.data_dir_name}"):
+                os.mkdir(f"{ATTN_OUT}/{tfconfig.data_dir_name}")
             if tfconfig.training == 0:
                 np.save(f"{ATTN_OUT}/{tfconfig.data_dir_name}/attn_analysis_hb_proout", proout)
                 np.save(f"{ATTN_OUT}/{tfconfig.data_dir_name}/attn_analysis_hb_RNAout", rnaout)

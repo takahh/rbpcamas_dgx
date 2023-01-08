@@ -45,7 +45,7 @@ pmax = 2805
 if moder == "unknown_shared_reduced_broad_share":
     filennum_per_group = 300
 else:
-    filennum_per_group = 1001
+    filennum_per_group = 20000
 
 targetrange = list(range(filennum_per_group))
 eachlen = round(filennum_per_group / 10)

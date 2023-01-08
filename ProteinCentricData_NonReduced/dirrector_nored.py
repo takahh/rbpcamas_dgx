@@ -25,7 +25,7 @@ LARGE_F_VALUE = 0.80
 # Min posi count per rna
 LEAST_POSI_COUNT_PER_RNA = 10
 # number of uniques rna
-MAX_SITE_COUNT = 5000//(LEAST_POSI_COUNT_PER_RNA * 2) + 2
+MAX_SITE_COUNT = 20000//(LEAST_POSI_COUNT_PER_RNA * 2) + 2
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
@@ -33,19 +33,19 @@ MAX_SITE_COUNT = 5000//(LEAST_POSI_COUNT_PER_RNA * 2) + 2
 
 def main():
     # print("#### S1 start ####")
-    runs1()
-    print("#### S2 start ####")
-    runs2(LARGE_F_VALUE)
-    print("#### S3 start ####")
-    runs3(MAX_SITE_COUNT)
-    print("#### S4 start ####")
-    runs4()
-    print("#### S5 start ####")
-    runs5()
-    print("#### N6 start ####")
-    runn6()
-    print("#### N7 start ####")
-    runn7()
+    # runs1()
+    # print("#### S2 start ####")
+    # runs2(LARGE_F_VALUE)
+    # print("#### S3 start ####")
+    # runs3(MAX_SITE_COUNT)
+    # print("#### S4 start ####")
+    # runs4()
+    # print("#### S5 start ####")
+    # runs5()
+    # print("#### N6 start ####")
+    # runn6()
+    # print("#### N7 start ####")
+    # runn7()
     print("#### N8 start ####")
     runn8(F_VALUE, LARGE_F_VALUE)
     print("#### All Done ####")
