@@ -975,9 +975,9 @@ def opt_trfmr(tfconfig):
         if tfconfig.shuffle == 1:
             combined_dataset_train = combined_dataset_train.repeat(1).shuffle(int(train_files)).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
         else:
-            combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+            combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache("/home/kimura.t/tmp").prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
             # combined_dataset_train = combined_dataset_train.repeat(1).batch(dataset_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
-        combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).cache().prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
+        combined_dataset_test = combined_dataset_test.repeat(1).batch(test_batch).cache("/home/kimura.t/tmp2").prefetch(tf.data.experimental.AUTOTUNE).with_options(options)
     else:  # run analysis
         combined_dataset_test = combined_dataset2.take(4)
         combined_dataset_test = combined_dataset_test.repeat(1).batch(4).with_options(options)
