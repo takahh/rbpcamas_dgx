@@ -140,7 +140,7 @@ def runn7():
     os.environ['TMPDIR'] = "/Users/mac/Downloads/tmp"
     mode = "known"  # known protein patten
     for type in ["HB", "PI"]:
-        maxfile_num = 1002
+        maxfile_num = 6000
         start_num = 0
         seq_file = f"{inputpath}"
         main(mode, type, maxfile_num, seq_file, start_num)

@@ -48,7 +48,8 @@ else:
     filennum_per_group = 20000
 
 targetrange = list(range(filennum_per_group))
-eachlen = round(filennum_per_group / 10)
+# eachlen = round(filennum_per_group / 10)
+eachlen = 600
 promaxdict = {20: 2805, 13: 1609, 8: 986, 4: 609}
 pmax_reduced = promaxdict[reduce_level]
 

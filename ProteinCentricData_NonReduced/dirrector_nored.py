@@ -26,6 +26,7 @@ LARGE_F_VALUE = 0.80
 LEAST_POSI_COUNT_PER_RNA = 10
 # number of uniques rna
 MAX_SITE_COUNT = 20000//(LEAST_POSI_COUNT_PER_RNA * 2) + 2
+print(f"MAXSITE {MAX_SITE_COUNT}")
 # -------------------------------------------------------------------
 # function
 # -------------------------------------------------------------------
@@ -44,7 +45,7 @@ def main():
     # runs5()
     # print("#### N6 start ####")
     # runn6()
-    # print("#### N7 start ####")
+    print("#### N7 start ####")
     # runn7()
     print("#### N8 start ####")
     runn8(F_VALUE, LARGE_F_VALUE)
