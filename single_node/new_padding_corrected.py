@@ -37,7 +37,7 @@ tf.random.set_seed(seed)
 operation_lebel_seed = 1
 initializer = tf.keras.initializers.GlorotUniform(seed=operation_lebel_seed)
 
-# gpus = tf.config.list_physical_devices('GPU')  # 8 GPUs in my setup
+gpus = tf.config.list_physical_devices('GPU')  # 8 GPUs in my setup
 for gpu in gpus:
    tf.config.experimental.set_memory_growth(gpu, True)
 #    tf.config.set_visible_devices(gpus[0:4], 'GPU')  # Using all GPUs (default behaviour)
