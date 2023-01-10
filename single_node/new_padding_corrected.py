@@ -26,7 +26,7 @@ from subprocess import call
 #    format="[%(levelname)s] %(message)s",
 #    datefmt="%m/%d/%Y %I:%M:%S %p"
 #)
-seed = 1
+seed = 10
 # tf.compat.v1.disable_eager_execution()
 tf.config.run_functions_eagerly(True)
 # release memory after computation
@@ -34,7 +34,7 @@ tf.config.run_functions_eagerly(True)
 #config.gpu_options.allow_growth=True
 #sess = tf.compat.v1.Session(config=config)
 tf.random.set_seed(seed)
-operation_lebel_seed = 1
+operation_lebel_seed = 10
 initializer = tf.keras.initializers.GlorotUniform(seed=operation_lebel_seed)
 
 gpus = tf.config.list_physical_devices('GPU')  # 8 GPUs in my setup
