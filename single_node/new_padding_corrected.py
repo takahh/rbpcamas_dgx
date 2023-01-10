@@ -134,7 +134,7 @@ class Tfconfig():
         # -------------
         # gpu number
         # -------------
-        self.test_freq = int(self.batch_size / 2)
+        self.test_freq = int(self.batch_size)
         if self.node_name == "f":
             self.num_of_gpu = self.num_of_node * 4
         elif self.node_name == "q":
@@ -793,15 +793,17 @@ def opt_trfmr(tfconfig):
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
                 tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.protok = \
                     map(self.flatten_n_batch, datalist[:8])
+                if tfconfig.use_TAPE_feature == 1:
+                    tfconfig.p_tape_tf = self.flatten_n_batch(datalist[8])
             else:
                 tfconfig.proid, tfconfig.rnatok, tfconfig.statpot_hb, tfconfig.statpot_pi, \
                 tfconfig.self_pro_mask_list, tfconfig.cross_padding_mask_list, tfconfig.label, tfconfig.red_index \
                 , tfconfig.reduced_ptok = \
                 map(self.flatten_n_batch, datalist[:9])
 
-            # tfconfig.validation_in_training = 1
-            if tfconfig.use_TAPE_feature == 1:
-                tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
+            # # tfconfig.validation_in_training = 1
+            # if tfconfig.use_TAPE_feature == 1:
+            #     tfconfig.p_tape_tf = self.flatten_n_batch(datalist[9])
             # predictions, pweight, rweight, pself, rself, proout, rnaout = self.transformer(tfconfig)
             if tfconfig.run_attn_analysis == 0:
                 predictions = self.transformer(tfconfig)
