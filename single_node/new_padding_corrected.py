@@ -922,13 +922,13 @@ def opt_trfmr(tfconfig):
     cp_callback_no_date = tf.keras.callbacks.ModelCheckpoint(checkpoint_path_no_date,
                                                      monitor="eval_loss",
                                                      mode="min",
-                                                     save_freq=200,
+                                                     save_freq=tfconfig.batch_size * 5,
                                                      save_weights_only=True,
                                                      verbose=1)
     cp_callback_with_date = tf.keras.callbacks.ModelCheckpoint(checkpoint_path_with_date,
                                                      monitor="eval_loss",
                                                      mode="min",
-                                                     save_freq=200,
+                                                     save_freq=tfconfig.batch_size * 5,
                                                      save_weights_only=True,
                                                      verbose=1)
 
