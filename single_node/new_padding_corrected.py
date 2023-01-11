@@ -1007,7 +1007,8 @@ def opt_trfmr(tfconfig):
         if tfconfig.validation_in_training == 0:
             model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks)
         else:
-            model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks, validation_data=combined_dataset_test)
+            model.fit(combined_dataset_train, epochs=tfconfig.max_epoch, callbacks=callbacks,
+                      validation_data=combined_dataset_test, validation_freq=5)
     elif tfconfig.training == 0:
         model.evaluate(combined_dataset_test)
 
